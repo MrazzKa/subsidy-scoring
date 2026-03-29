@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+.claude/
+.pytest_cache/
+outputs/ranking.csv
+data/*.xlsx
+*.egg-info/
+dist/
+build/
+.venv/
