@@ -1,0 +1,487 @@
+{
+  "overview": {
+    "total_applications": 36651,
+    "avg_score": 86.44,
+    "total_amount": 139325578572.0,
+    "recommended": 31678,
+    "pct_recommended": 86.4
+  },
+  "score_distribution": [
+    {
+      "range": "0-5",
+      "count": 0
+    },
+    {
+      "range": "5-10",
+      "count": 0
+    },
+    {
+      "range": "10-15",
+      "count": 125
+    },
+    {
+      "range": "15-20",
+      "count": 3170
+    },
+    {
+      "range": "20-25",
+      "count": 1545
+    },
+    {
+      "range": "25-30",
+      "count": 129
+    },
+    {
+      "range": "30-35",
+      "count": 4
+    },
+    {
+      "range": "35-40",
+      "count": 0
+    },
+    {
+      "range": "40-45",
+      "count": 0
+    },
+    {
+      "range": "45-50",
+      "count": 0
+    },
+    {
+      "range": "50-55",
+      "count": 0
+    },
+    {
+      "range": "55-60",
+      "count": 0
+    },
+    {
+      "range": "60-65",
+      "count": 0
+    },
+    {
+      "range": "65-70",
+      "count": 0
+    },
+    {
+      "range": "70-75",
+      "count": 0
+    },
+    {
+      "range": "75-80",
+      "count": 0
+    },
+    {
+      "range": "80-85",
+      "count": 5
+    },
+    {
+      "range": "85-90",
+      "count": 79
+    },
+    {
+      "range": "90-95",
+      "count": 3415
+    },
+    {
+      "range": "95-100",
+      "count": 28179
+    }
+  ],
+  "risk_distribution": [
+    {
+      "level": "recommended",
+      "count": 31678
+    },
+    {
+      "level": "high_risk",
+      "count": 4969
+    },
+    {
+      "level": "medium_risk",
+      "count": 4
+    }
+  ],
+  "direction_stats": [
+    {
+      "direction": "Субсидирование в верблюдоводстве",
+      "count": 1382,
+      "avg_score": 82.94
+    },
+    {
+      "direction": "Субсидирование в козоводстве",
+      "count": 3,
+      "avg_score": 68.29
+    },
+    {
+      "direction": "Субсидирование в коневодстве",
+      "count": 1382,
+      "avg_score": 82.98
+    },
+    {
+      "direction": "Субсидирование в овцеводстве",
+      "count": 3560,
+      "avg_score": 79.85
+    },
+    {
+      "direction": "Субсидирование в птицеводстве",
+      "count": 5360,
+      "avg_score": 92.37
+    },
+    {
+      "direction": "Субсидирование в пчеловодстве",
+      "count": 204,
+      "avg_score": 66.05
+    },
+    {
+      "direction": "Субсидирование в свиноводстве",
+      "count": 116,
+      "avg_score": 80.99
+    },
+    {
+      "direction": "Субсидирование в скотоводстве",
+      "count": 24397,
+      "avg_score": 86.71
+    },
+    {
+      "direction": "Субсидирование затрат по искусственному осеменению",
+      "count": 247,
+      "avg_score": 84.11
+    }
+  ],
+  "region_stats": [
+    {
+      "region": "Акмолинская область",
+      "count": 963,
+      "avg_score": 79.57,
+      "recommended": 773,
+      "pct_recommended": 80.3
+    },
+    {
+      "region": "Актюбинская область",
+      "count": 2385,
+      "avg_score": 86.72,
+      "recommended": 2076,
+      "pct_recommended": 87.0
+    },
+    {
+      "region": "Алматинская область",
+      "count": 2681,
+      "avg_score": 86.42,
+      "recommended": 2299,
+      "pct_recommended": 85.8
+    },
+    {
+      "region": "Атырауская область",
+      "count": 617,
+      "avg_score": 86.66,
+      "recommended": 535,
+      "pct_recommended": 86.7
+    },
+    {
+      "region": "Восточно-Казахстанская область",
+      "count": 1376,
+      "avg_score": 87.2,
+      "recommended": 1200,
+      "pct_recommended": 87.2
+    },
+    {
+      "region": "Жамбылская область",
+      "count": 3312,
+      "avg_score": 78.69,
+      "recommended": 2603,
+      "pct_recommended": 78.6
+    },
+    {
+      "region": "Западно-Казахстанская область",
+      "count": 5156,
+      "avg_score": 84.45,
+      "recommended": 4352,
+      "pct_recommended": 84.4
+    },
+    {
+      "region": "Карагандинская область",
+      "count": 926,
+      "avg_score": 91.32,
+      "recommended": 847,
+      "pct_recommended": 91.5
+    },
+    {
+      "region": "Костанайская область",
+      "count": 2509,
+      "avg_score": 92.73,
+      "recommended": 2332,
+      "pct_recommended": 92.9
+    },
+    {
+      "region": "Кызылординская область",
+      "count": 1260,
+      "avg_score": 74.99,
+      "recommended": 947,
+      "pct_recommended": 75.2
+    },
+    {
+      "region": "Мангистауская область",
+      "count": 3423,
+      "avg_score": 83.32,
+      "recommended": 2849,
+      "pct_recommended": 83.2
+    },
+    {
+      "region": "Павлодарская область",
+      "count": 2281,
+      "avg_score": 85.29,
+      "recommended": 1943,
+      "pct_recommended": 85.2
+    },
+    {
+      "region": "Северо-Казахстанская область",
+      "count": 1554,
+      "avg_score": 83.8,
+      "recommended": 1298,
+      "pct_recommended": 83.5
+    },
+    {
+      "region": "Туркестанская область",
+      "count": 2281,
+      "avg_score": 91.37,
+      "recommended": 2086,
+      "pct_recommended": 91.5
+    },
+    {
+      "region": "г.Шымкент",
+      "count": 405,
+      "avg_score": 82.05,
+      "recommended": 330,
+      "pct_recommended": 81.5
+    },
+    {
+      "region": "область Абай",
+      "count": 3683,
+      "avg_score": 96.51,
+      "recommended": 3568,
+      "pct_recommended": 96.9
+    },
+    {
+      "region": "область Жетісу",
+      "count": 1479,
+      "avg_score": 89.84,
+      "recommended": 1324,
+      "pct_recommended": 89.5
+    },
+    {
+      "region": "область Ұлытау",
+      "count": 360,
+      "avg_score": 88.11,
+      "recommended": 316,
+      "pct_recommended": 87.8
+    }
+  ],
+  "model_results": {
+    "GradientBoosting": {
+      "auc": 1.0,
+      "acc": 1.0,
+      "f1": 1.0,
+      "prec": 1.0,
+      "rec": 1.0
+    },
+    "RandomForest": {
+      "auc": 1.0,
+      "acc": 0.9992,
+      "f1": 0.9995,
+      "prec": 0.9991,
+      "rec": 1.0
+    },
+    "LogisticRegression": {
+      "auc": 0.6705,
+      "acc": 0.8643,
+      "f1": 0.9272,
+      "prec": 0.8645,
+      "rec": 0.9997
+    }
+  },
+  "feature_importance": [
+    {
+      "feature": "direction_approval_rate",
+      "importance": 0.266039
+    },
+    {
+      "feature": "category_approval_rate",
+      "importance": 0.17295
+    },
+    {
+      "feature": "direction_enc",
+      "importance": 0.001168
+    },
+    {
+      "feature": "log_amount",
+      "importance": 0.0
+    },
+    {
+      "feature": "log_normative",
+      "importance": 0.0
+    },
+    {
+      "feature": "log_estimated_units",
+      "importance": 0.0
+    },
+    {
+      "feature": "amount_vs_regional_median",
+      "importance": 0.0
+    },
+    {
+      "feature": "amount_vs_category_median",
+      "importance": 0.0
+    },
+    {
+      "feature": "is_large_request",
+      "importance": 0.0
+    },
+    {
+      "feature": "month",
+      "importance": 0.0
+    },
+    {
+      "feature": "quarter",
+      "importance": 0.0
+    },
+    {
+      "feature": "day_of_week",
+      "importance": 0.0
+    },
+    {
+      "feature": "hour",
+      "importance": 0.0
+    },
+    {
+      "feature": "is_working_hours",
+      "importance": 0.0
+    },
+    {
+      "feature": "is_weekday",
+      "importance": 0.0
+    }
+  ],
+  "top_applications": [
+    {
+      "rank": 1,
+      "request_num": "1200100283322.0",
+      "region": "область Абай",
+      "direction": "Субсидирование в скотоводстве",
+      "amount": 1600000.0,
+      "score": 99.56,
+      "risk_level": "recommended"
+    },
+    {
+      "rank": 2,
+      "request_num": "5801000381359.0",
+      "region": "область Абай",
+      "direction": "Субсидирование в птицеводстве",
+      "amount": 5449080.0,
+      "score": 99.56,
+      "risk_level": "recommended"
+    },
+    {
+      "rank": 3,
+      "request_num": "1200100283293.0",
+      "region": "область Абай",
+      "direction": "Субсидирование в скотоводстве",
+      "amount": 1360000.0,
+      "score": 99.56,
+      "risk_level": "recommended"
+    },
+    {
+      "rank": 4,
+      "request_num": "1200100283272.0",
+      "region": "область Абай",
+      "direction": "Субсидирование в скотоводстве",
+      "amount": 1340000.0,
+      "score": 99.56,
+      "risk_level": "recommended"
+    },
+    {
+      "rank": 4,
+      "request_num": "1200100283234.0",
+      "region": "область Абай",
+      "direction": "Субсидирование в скотоводстве",
+      "amount": 1340000.0,
+      "score": 99.56,
+      "risk_level": "recommended"
+    },
+    {
+      "rank": 6,
+      "request_num": "1200100283209.0",
+      "region": "область Абай",
+      "direction": "Субсидирование в скотоводстве",
+      "amount": 1290000.0,
+      "score": 99.55,
+      "risk_level": "recommended"
+    },
+    {
+      "rank": 7,
+      "request_num": "1200100283250.0",
+      "region": "область Абай",
+      "direction": "Субсидирование в скотоводстве",
+      "amount": 1070000.0,
+      "score": 99.55,
+      "risk_level": "recommended"
+    },
+    {
+      "rank": 8,
+      "request_num": "1200100283329.0",
+      "region": "область Абай",
+      "direction": "Субсидирование в скотоводстве",
+      "amount": 1010000.0,
+      "score": 99.55,
+      "risk_level": "recommended"
+    },
+    {
+      "rank": 9,
+      "request_num": "1200100283300.0",
+      "region": "область Абай",
+      "direction": "Субсидирование в скотоводстве",
+      "amount": 1000000.0,
+      "score": 99.55,
+      "risk_level": "recommended"
+    },
+    {
+      "rank": 10,
+      "request_num": "5801000277993.0",
+      "region": "область Абай",
+      "direction": "Субсидирование в птицеводстве",
+      "amount": 2835720.0,
+      "score": 99.55,
+      "risk_level": "recommended"
+    }
+  ],
+  "example_explain": {
+    "request_num": "1200100283322.0",
+    "score": 99.56,
+    "risk_level": "recommended",
+    "region": "область Абай",
+    "direction": "Субсидирование в скотоводстве",
+    "amount": 1600000.0,
+    "factors": [
+      {
+        "feature": "direction_approval_rate",
+        "importance": 0.266039
+      },
+      {
+        "feature": "category_approval_rate",
+        "importance": 0.17295
+      },
+      {
+        "feature": "direction_enc",
+        "importance": 0.001168
+      },
+      {
+        "feature": "log_amount",
+        "importance": 0.0
+      },
+      {
+        "feature": "log_normative",
+        "importance": 0.0
+      }
+    ]
+  }
+}
