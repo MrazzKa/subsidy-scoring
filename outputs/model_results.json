@@ -1,0 +1,23 @@
+{
+  "GradientBoosting": {
+    "auc": 0.7458,
+    "acc": 0.8666,
+    "f1": 0.9282,
+    "prec": 0.8679,
+    "rec": 0.9975
+  },
+  "RandomForest": {
+    "auc": 0.7223,
+    "acc": 0.8643,
+    "f1": 0.9272,
+    "prec": 0.8643,
+    "rec": 1.0
+  },
+  "LogisticRegression": {
+    "auc": 0.6198,
+    "acc": 0.8643,
+    "f1": 0.9272,
+    "prec": 0.8643,
+    "rec": 1.0
+  }
+}

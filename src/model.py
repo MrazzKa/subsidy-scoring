@@ -30,11 +30,12 @@ class SubsidyScoringModel:
     def build_models(self):
         self.models = {
             "GradientBoosting": GradientBoostingClassifier(
-                n_estimators=200, max_depth=5, learning_rate=0.1,
-                subsample=0.8, random_state=42,
+                n_estimators=200, max_depth=4, learning_rate=0.05,
+                subsample=0.8, min_samples_leaf=50, random_state=42,
             ),
             "RandomForest": RandomForestClassifier(
-                n_estimators=200, max_depth=10, random_state=42, n_jobs=-1,
+                n_estimators=200, max_depth=6, min_samples_leaf=30,
+                random_state=42, n_jobs=-1,
             ),
             "LogisticRegression": LogisticRegression(
                 max_iter=1000, C=1.0, random_state=42,
@@ -107,25 +108,45 @@ class SubsidyScoringModel:
 
     # ---------- Explainability ----------
 
-    def explain_single(self, X_single: np.ndarray, feature_cols: list = None, top_n: int = 5) -> dict:
-        """Объяснение скора одной заявки: ключевые факторы."""
+    def explain_single(self, X_single: np.ndarray, feature_cols: list = None,
+                       row: pd.Series = None, top_n: int = 5) -> dict:
+        """Объяснение скора одной заявки с человекочитаемыми описаниями."""
         cols = feature_cols or self.feature_cols or []
         score = float(self.predict_score(X_single.reshape(1, -1))[0])
 
-        # Feature contributions через permutation importance
         sorted_feats = sorted(self.importances.items(), key=lambda x: abs(x[1]), reverse=True)
         top_factors = []
         for feat, imp in sorted_feats[:top_n]:
             idx = cols.index(feat) if feat in cols else -1
             val = float(X_single[idx]) if idx >= 0 else 0.0
+            desc = _feature_description(feat, val, row)
             top_factors.append({
-                "feature": feat,
+                "feature": _FEATURE_NAMES_RU.get(feat, feat),
                 "value": round(val, 4),
                 "importance": round(imp, 6),
+                "impact": "positive" if val > 0.5 else "neutral",
+                "description": desc,
             })
 
         risk = _risk_level(score)
-        return {"score": round(score, 2), "risk_level": risk, "top_factors": top_factors}
+
+        result = {"score": round(score, 2), "risk_level": risk, "top_factors": top_factors}
+
+        if row is not None:
+            components = {}
+            for comp in ["efficiency_score", "reliability_score", "need_score", "merit_score"]:
+                if comp in row.index:
+                    components[comp.replace("_score", "")] = {
+                        "score": round(float(row[comp]), 1),
+                        "description": _COMPONENT_DESCRIPTIONS.get(comp, ""),
+                    }
+            components["ml_prediction"] = {
+                "score": round(score, 1),
+                "description": "Вероятность одобрения по историческим данным",
+            }
+            result["components"] = components
+
+        return result
 
     # ---------- Рейтинг ----------
 
@@ -167,29 +188,33 @@ class SubsidyScoringModel:
         """Собирает JSON для дашборда."""
         df = ranking
 
+        # Use merit scores if available, fall back to ml_score
+        score_col = "merit_score" if "merit_score" in df.columns else "ml_score"
+        risk_col = "merit_risk_level" if "merit_risk_level" in df.columns else "risk_level"
+
         # Метрики
         total = len(df)
-        avg_score = round(float(df["ml_score"].mean()), 2)
+        avg_score = round(float(df[score_col].mean()), 2)
         total_amount = float(df["amount"].sum())
-        recommended = int((df["risk_level"] == "recommended").sum())
+        recommended = int((df[risk_col] == "recommended").sum())
         pct_recommended = round(recommended / total * 100, 1) if total else 0
 
         # Распределение скоров (гистограмма)
         bins = list(range(0, 101, 5))
-        hist, _ = np.histogram(df["ml_score"], bins=bins)
+        hist, _ = np.histogram(df[score_col], bins=bins)
         score_distribution = [
             {"range": f"{bins[i]}-{bins[i+1]}", "count": int(hist[i])}
             for i in range(len(hist))
         ]
 
         # Распределение рисков
-        risk_counts = df["risk_level"].value_counts().to_dict()
+        risk_counts = df[risk_col].value_counts().to_dict()
         risk_distribution = [{"level": k, "count": v} for k, v in risk_counts.items()]
 
         # По направлениям
         dir_stats = df.groupby("direction").agg(
-            count=("ml_score", "size"),
-            avg_score=("ml_score", "mean"),
+            count=(score_col, "size"),
+            avg_score=(score_col, "mean"),
         ).reset_index()
         direction_stats = [
             {"direction": row["direction"], "count": int(row["count"]),
@@ -199,9 +224,9 @@ class SubsidyScoringModel:
 
         # По регионам
         reg_stats = df.groupby("region").agg(
-            count=("ml_score", "size"),
-            avg_score=("ml_score", "mean"),
-            recommended=("risk_level", lambda x: int((x == "recommended").sum())),
+            count=(score_col, "size"),
+            avg_score=(score_col, "mean"),
+            recommended=(risk_col, lambda x: int((x == "recommended").sum())),
         ).reset_index()
         region_stats = [
             {"region": row["region"], "count": int(row["count"]),
@@ -215,13 +240,15 @@ class SubsidyScoringModel:
         feat_imp = sorted(self.importances.items(), key=lambda x: x[1], reverse=True)[:15]
         feature_importance = [{"feature": f, "importance": round(i, 6)} for f, i in feat_imp]
 
-        # Топ-10 заявок
-        top10 = df.nsmallest(10, "rank")
+        # Топ-10 заявок (by merit_rank if available)
+        rank_col = "merit_rank" if "merit_rank" in df.columns else "rank"
+        top10 = df.nsmallest(10, rank_col)
         top_applications = [
-            {"rank": int(row["rank"]), "request_num": str(row["request_num"]),
-             "region": row["region"], "direction": row["direction"],
-             "amount": float(row["amount"]), "score": round(float(row["ml_score"]), 2),
-             "risk_level": row["risk_level"]}
+            {"rank": int(row[rank_col]), "request_num": str(row["request_num"]),
+             "region": row["region"], "district": row.get("district", ""),
+             "direction": row["direction"],
+             "amount": float(row["amount"]), "score": round(float(row[score_col]), 2),
+             "risk_level": row[risk_col]}
             for _, row in top10.iterrows()
         ]
 
@@ -231,13 +258,17 @@ class SubsidyScoringModel:
             first = top10.iloc[0]
             example_explain = {
                 "request_num": str(first["request_num"]),
-                "score": round(float(first["ml_score"]), 2),
-                "risk_level": first["risk_level"],
+                "score": round(float(first[score_col]), 2),
+                "risk_level": first[risk_col],
                 "region": first["region"],
                 "direction": first["direction"],
                 "amount": float(first["amount"]),
                 "factors": feature_importance[:5],
             }
+            # Add component scores if available
+            for comp in ["efficiency_score", "reliability_score", "need_score", "ml_score", "merit_score"]:
+                if comp in first.index:
+                    example_explain[comp] = round(float(first[comp]), 1)
 
         return {
             "overview": {
@@ -259,6 +290,60 @@ class SubsidyScoringModel:
 
 
 # ---------- Helpers ----------
+
+_FEATURE_NAMES_RU = {
+    "direction_approval_rate": "Одобряемость направления",
+    "category_approval_rate": "Одобряемость категории",
+    "region_approval_rate": "Одобряемость региона",
+    "log_amount": "Сумма запроса",
+    "log_normative": "Норматив",
+    "log_estimated_units": "Расчётные единицы",
+    "amount_vs_regional_median": "Сумма vs медиана региона",
+    "amount_vs_category_median": "Сумма vs медиана категории",
+    "is_large_request": "Крупный запрос",
+    "month": "Месяц подачи",
+    "quarter": "Квартал подачи",
+    "day_of_week": "День недели",
+    "hour": "Час подачи",
+    "is_working_hours": "Рабочие часы",
+    "is_weekday": "Рабочий день",
+    "submission_speed": "Скорость подачи",
+    "region_application_count": "Заявок в регионе",
+    "district_application_count": "Заявок в районе",
+    "month_application_count": "Заявок в месяце",
+    "region_enc": "Регион (код)",
+    "direction_enc": "Направление (код)",
+    "subsidy_category_enc": "Категория субсидии (код)",
+    "district_enc": "Район (код)",
+}
+
+_COMPONENT_DESCRIPTIONS = {
+    "efficiency_score": "Адекватность запроса нормативам категории",
+    "reliability_score": "Паттерны надёжного заявителя",
+    "need_score": "Обоснованность потребности региона",
+    "merit_score": "Композитный Merit-скор",
+}
+
+
+def _feature_description(feat: str, val: float, row=None) -> str:
+    """Человекочитаемое описание фактора."""
+    descriptions = {
+        "direction_approval_rate": f"Направление имеет исторический процент одобрения {val*100:.0f}%",
+        "category_approval_rate": f"Категория субсидии одобряется в {val*100:.0f}% случаев",
+        "region_approval_rate": f"Регион имеет процент одобрения {val*100:.0f}%",
+        "submission_speed": f"Заявка подана на {(1-val)*100:.0f}% от конца периода приёма",
+        "is_working_hours": "Подана в рабочее время" if val == 1 else "Подана вне рабочих часов",
+        "is_weekday": "Подана в рабочий день" if val == 1 else "Подана в выходной",
+        "log_amount": f"Логарифм суммы запроса: {val:.2f}",
+        "log_normative": f"Логарифм норматива: {val:.2f}",
+        "amount_vs_regional_median": f"Сумма составляет {val*100:.0f}% от медианы региона",
+        "amount_vs_category_median": f"Сумма составляет {val*100:.0f}% от медианы категории",
+        "is_large_request": "Запрос в топ-10% по сумме" if val == 1 else "Стандартный размер запроса",
+        "region_application_count": f"В регионе подано {val:.0f} заявок",
+        "district_application_count": f"В районе подано {val:.0f} заявок",
+    }
+    return descriptions.get(feat, f"Значение: {val:.4f}")
+
 
 def _risk_level(score: float) -> str:
     if score >= 70:

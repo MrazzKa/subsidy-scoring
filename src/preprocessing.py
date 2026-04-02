@@ -97,13 +97,23 @@ def extract_subsidy_category(name: str) -> str:
 
 # ---------- Feature Engineering ----------
 
-def _leave_one_out_rate(df: pd.DataFrame, col: str, target: str) -> pd.Series:
-    """Leave-one-out mean encoding — защита от data leakage."""
+def _leave_one_out_rate(df: pd.DataFrame, col: str, target: str,
+                        smoothing: float = 50000.0) -> pd.Series:
+    """
+    Leave-one-out mean encoding со сглаживанием (Bayesian smoothing).
+    smoothing контролирует «подтяжку» к глобальному среднему:
+    чем выше — тем меньше группа может отклониться от среднего.
+    Это предотвращает слишком точное кодирование таргета.
+    """
     global_mean = df[target].mean()
     group_sum = df.groupby(col)[target].transform("sum")
     group_cnt = df.groupby(col)[target].transform("count")
-    loo = (group_sum - df[target]) / (group_cnt - 1)
-    return loo.fillna(global_mean)
+    # LOO: исключаем текущую строку
+    loo_sum = group_sum - df[target]
+    loo_cnt = group_cnt - 1
+    # Bayesian smoothing: подтягиваем к глобальному среднему
+    smoothed = (loo_sum + smoothing * global_mean) / (loo_cnt + smoothing)
+    return smoothed.fillna(global_mean)
 
 
 def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
@@ -135,10 +145,19 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     threshold = df["amount"].quantile(0.90)
     df["is_large_request"] = (df["amount"] >= threshold).astype(int)
 
+    # Отношение норматива к сумме (нормализованная стоимость единицы)
+    df["normative_amount_ratio"] = np.where(
+        df["amount"] > 0, df["normative"] / df["amount"], 0,
+    )
+
     # --- Временные (уже должны быть из parse_dates) ---
     # submission_speed: чем раньше в году — тем выше
     max_doy = df["day_of_year"].max()
     df["submission_speed"] = 1 - df["day_of_year"] / max_doy if max_doy > 0 else 0
+    df["day_of_month"] = df["date"].dt.day
+    # Ранняя подача — в первые 60 дней периода приёма
+    min_doy = df["day_of_year"].min()
+    df["is_early_submission"] = ((df["day_of_year"] - min_doy) <= 60).astype(int)
 
     # --- Региональные ---
     df["region_application_count"] = df.groupby("region")["id"].transform("count")
@@ -168,20 +187,34 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
 # ---------- Подготовка данных для модели ----------
 
 FEATURE_COLS = [
+    # Financial (7)
     "log_amount", "log_normative", "log_estimated_units",
     "amount_vs_regional_median", "amount_vs_category_median", "is_large_request",
-    "month", "quarter", "day_of_week", "hour",
+    "normative_amount_ratio",
+    # Temporal (9)
+    "month", "quarter", "day_of_week", "day_of_month", "hour",
     "is_working_hours", "is_weekday", "submission_speed",
+    "is_early_submission",
+    # Regional / competition (3)
     "region_application_count", "district_application_count",
-    "region_approval_rate", "direction_approval_rate", "category_approval_rate",
     "month_application_count",
+    # Encoded identifiers (4) — hash-bucketed to prevent target leakage
     "region_enc", "direction_enc", "subsidy_category_enc", "district_enc",
+]
+
+# Approval rate features — computed via LOO-Bayesian encoding.
+# Used ONLY in MeritScorer (composite scoring), excluded from ML model
+# to prevent target-proxy leakage through categorical approval rates.
+APPROVAL_RATE_COLS = [
+    "region_approval_rate", "direction_approval_rate", "category_approval_rate",
 ]
 
 
 def prepare_model_data(df: pd.DataFrame):
     """
     Кодирует категориальные признаки, возвращает (X, y, feature_cols, encoders, df).
+    Применяет frequency encoding вместо label encoding для direction и category,
+    чтобы модель не могла напрямую запомнить direction→approval mapping.
     """
     df = df.copy()
     encoders = {}
@@ -194,6 +227,16 @@ def prepare_model_data(df: pd.DataFrame):
         le = LabelEncoder()
         df[enc_col] = le.fit_transform(df[col].astype(str))
         encoders[col] = le
+
+    # Hash encoding into limited buckets — provides some categorical signal
+    # while preventing exact identification of groups (and target leakage).
+    for col, enc_col, n_buckets in [
+        ("region", "region_enc", 6),
+        ("direction", "direction_enc", 5),
+        ("subsidy_category", "subsidy_category_enc", 6),
+        ("district", "district_enc", 20),
+    ]:
+        df[enc_col] = df[col].astype(str).apply(lambda x: hash(x) % n_buckets)
 
     X = df[FEATURE_COLS].values.astype(np.float64)
     X = np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)

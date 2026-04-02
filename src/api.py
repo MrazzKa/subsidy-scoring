@@ -108,9 +108,13 @@ def explain(request_id: str):
     if _ranking.empty:
         raise HTTPException(404, "No data.")
 
-    row = _ranking[_ranking["request_num"].astype(str) == request_id]
+    req_num_str = _ranking["request_num"].astype(str).str.replace(r'\.0$', '', regex=True)
+    id_str = _ranking["id"].astype(str).str.replace(r'\.0$', '', regex=True)
+    request_id_clean = str(request_id).replace('.0', '')
+
+    row = _ranking[req_num_str == request_id_clean]
     if row.empty:
-        row = _ranking[_ranking["id"].astype(str) == request_id]
+        row = _ranking[id_str == request_id_clean]
     if row.empty:
         raise HTTPException(404, f"Application {request_id} not found.")
 
