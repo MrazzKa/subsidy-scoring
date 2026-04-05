@@ -1,6 +1,6 @@
 # SubsidyScore AI
 
-**Merit-based scoring system for agricultural subsidies in Kazakhstan**
+**Merit-based scoring system for agricultural subsidies in Kazakhstan | Production-Ready Release**
 
 Hackathon: **Decentrathon 5.0** | Track: **AI inDrive** | Case 2: Скоринг сельхозпроизводителей при получении субсидий
 
@@ -104,40 +104,50 @@ MERIT = 0.25 × Efficiency + 0.15 × Reliability + 0.15 × Need + 0.15 × Regula
 | `/api/model/info` | GET | Информация о моделях |
 | `/api/features` | GET | Feature importance |
 
+## Особенности и Уникальные Фичи 🌟
+
+1. **Полная Мультиязычность (i18n)**: Интерфейс полностью локализован на 3 языка (**RU, KZ, EN**), включая динамические метки графиков и этапы загрузки.
+2. **Абсолютная Объяснимость (Explainability)**: Каждая полученная оценка раскладывается на 5 прозрачных суб-метрик. Модель показывает, как именно Нормативно-Правовые Акты повлияли на скоринг, и дает пользователю **Recommendations (подсказки по улучшению)**.
+3. **Smart Data Ingestion**: Интеллектуальный загрузчик данных (`smart_read_file` + `Levenshtein column mapper`). Автоматически отбрасывает пустые spacer-колонки, игнорирует метаданные в первых строках Excel (как в выгрузках ГИСС) и маппит "пляшущие" названия колонок. Поддерживается современный **Drag & Drop**.
+4. **Универсальный Деплой**: FastAPI-бэкенд не только отдает REST API, но и автоматически компилирует и раздает (`StaticFiles`) продакшен-бандл React. Это делает систему монолитом, готовым к деплою в один клик "из коробки" на Render/Railway/Docker.
+5. **AI-ассистент (RAG-система)**: Встроенный RAG-чат на базе `LLaMA 3.3 (Groq API)` глубоко погружен в нормативную базу Казахстана и статистику конкретного датасета, давая осмысленные ответы на вопросы проверяющих органов.
+
 ## Быстрый старт
 
 ```bash
 # Установка зависимостей
 pip install -r requirements.txt
 
-# Запуск полного pipeline (обучение + скоринг + сохранение)
+# Обучение модели и запуск pipeline
 python src/pipeline.py
 
-# Запуск API
+# Запуск API (и раздача статики)
 python src/api.py
 # → http://localhost:8000
 
-# Dashboard (dev)
+# Если вы хотите поднять Frontend отдельно (Dev Mode):
 cd dashboard-runner && npm install && npm run dev
 # → http://localhost:5173
 
-# Тесты
+# Запуск тестов
 pytest tests/ -v
 ```
 
-## Docker
+## Docker & Deployment
+
+Проект полностью оптимизирован под облачный деплой. Dockerfile автоматически собирает Frontend через Vite и запускает FastAPI сервер, который раздает статику "из-под одного порта".
 
 ```bash
-# С docker-compose
+# Сборка и запуск через Docker-compose
 docker-compose up --build
 # → http://localhost:8000
 
-# Или напрямую
+# Релиз в Production (со встроенным React)
 docker build -t subsidy-scoring .
-docker run -p 8000:8000 subsidy-scoring
+docker run -p 8000:8000 -e GROQ_API_KEY="ваш_ключ" subsidy-scoring
 ```
 
-Для AI-ассистента установите `GROQ_API_KEY`:
+Для AI-ассистента укажите `GROQ_API_KEY`:
 ```bash
 export GROQ_API_KEY=your_key_here
 ```
