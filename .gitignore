@@ -12,3 +12,7 @@ data/*.csv
 build/
 .venv/
 node_modules/
+
+# frontend artifacts
+dashboard-runner/node_modules/
+dashboard-runner/dist/
