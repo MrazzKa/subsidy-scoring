@@ -92,6 +92,14 @@ def ranking(region: Optional[str]=Query(None), direction: Optional[str]=Query(No
     cols = [c for c in ["request_num","region","district","direction","amount","ml_score","merit_score","merit_risk_level","merit_rank","is_anomaly"] if c in page.columns]
     return {"total": total, "offset": offset, "limit": limit, "data": page[cols].to_dict(orient="records")}
 
+def _safe_float(v, default=0.0):
+    """Convert to float safely, replacing NaN/Inf with default."""
+    try:
+        f = float(v)
+        if np.isnan(f) or np.isinf(f): return default
+        return f
+    except (ValueError, TypeError): return default
+
 # ── Explain ──
 @app.get("/api/explain/{request_id}")
 def explain(request_id: str):
@@ -105,11 +113,13 @@ def explain(request_id: str):
     if row.empty: raise HTTPException(404, f"Application {request_id} not found.")
     r = row.iloc[0]
     sc = "merit_score" if "merit_score" in r.index else "ml_score"
-    result = {"request_num": str(r.get("request_num","")), "region": r.get("region",""), "direction": r.get("direction",""), "amount": float(r.get("amount",0)), "score": round(float(r.get(sc,0)),2), "risk_level": r.get("merit_risk_level", r.get("risk_level",""))}
+    result = {"request_num": str(r.get("request_num","")), "region": str(r.get("region","")), "direction": str(r.get("direction","")), "amount": round(_safe_float(r.get("amount",0)),2), "score": round(_safe_float(r.get(sc,0)),2), "risk_level": str(r.get("merit_risk_level", r.get("risk_level","")))}
     for comp in ["ml_score","efficiency_score","reliability_score","need_score","regulatory_score","merit_score"]:
-        if comp in r.index: result[comp] = round(float(r[comp]),2)
+        if comp in r.index:
+            val = _safe_float(r[comp])
+            result[comp] = round(val, 2)
     from src.regulatory import compute_regulatory_score, get_regulatory_explanation
-    result["regulatory_score"] = round(float(compute_regulatory_score(r)),2)
+    result["regulatory_score"] = round(_safe_float(compute_regulatory_score(r)),2)
     result["regulatory_explanation"] = get_regulatory_explanation(r)
     if _merit_scorer:
         from src.scoring import generate_improvement_tips
@@ -184,10 +194,20 @@ def score_single(req: ScoreRequest):
 def budget_sim(budget: float = Query(1_000_000_000)):
     if _ranking.empty: raise HTTPException(404, "No data.")
     sc = "merit_score" if "merit_score" in _ranking.columns else "ml_score"
-    fifo = _ranking.sort_values("date"); fc = fifo["amount"].cumsum(); fn = int((fc<=budget).sum())
-    merit = _ranking.sort_values(sc, ascending=False); mc = merit["amount"].cumsum(); mn = int((mc<=budget).sum())
-    fa = float(fifo.head(fn)[sc].mean()) if fn>0 else 0; ma = float(merit.head(mn)[sc].mean()) if mn>0 else 0
-    return {"budget": budget, "fifo": {"funded": fn, "avg_score": round(fa,2)}, "merit": {"funded": mn, "avg_score": round(ma,2)}, "improvement_pct": round((ma-fa)/fa*100,1) if fa>0 else 0}
+    # FIFO: sort by date if available, else by index (original order)
+    if "date" in _ranking.columns:
+        try:
+            fifo = _ranking.sort_values("date")
+        except Exception:
+            fifo = _ranking
+    else:
+        fifo = _ranking
+    fc = fifo["amount"].fillna(0).cumsum(); fn = int((fc<=budget).sum())
+    merit = _ranking.sort_values(sc, ascending=False); mc = merit["amount"].fillna(0).cumsum(); mn = int((mc<=budget).sum())
+    fa = _safe_float(fifo.head(fn)[sc].mean()) if fn>0 else 0
+    ma = _safe_float(merit.head(mn)[sc].mean()) if mn>0 else 0
+    imp = round((ma-fa)/fa*100,1) if fa>0 else 0
+    return {"budget": budget, "fifo": {"funded": fn, "avg_score": round(fa,2)}, "merit": {"funded": mn, "avg_score": round(ma,2)}, "improvement_pct": imp}
 
 # ── Regulatory info ──
 @app.get("/api/regulatory/info")
