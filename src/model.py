@@ -95,6 +95,56 @@ class SubsidyScoringModel:
         self.cv_results = results
         return results
 
+    # ---------- Temporal Validation ----------
+
+    def temporal_validate(self, X, y, dates, feature_cols):
+        """Train на первых 80% по дате, test на последних 20%."""
+        # Build fresh models for temporal validation (don't overwrite self.models)
+        temp_models = {
+            "GradientBoosting": GradientBoostingClassifier(
+                n_estimators=200, max_depth=4, learning_rate=0.05,
+                subsample=0.8, min_samples_leaf=50, random_state=42,
+            ),
+            "RandomForest": RandomForestClassifier(
+                n_estimators=200, max_depth=6, min_samples_leaf=30,
+                random_state=42, n_jobs=-1,
+            ),
+            "LogisticRegression": LogisticRegression(
+                max_iter=1000, C=1.0, random_state=42,
+            ),
+        }
+        date_vals = pd.to_datetime(dates).astype(np.int64).values
+        sorted_idx = np.argsort(date_vals)
+        split = int(len(sorted_idx) * 0.8)
+        tr_idx, te_idx = sorted_idx[:split], sorted_idx[split:]
+        X_tr, X_te, y_tr, y_te = X[tr_idx], X[te_idx], y[tr_idx], y[te_idx]
+        scaler = StandardScaler().fit(X_tr)
+        results = {}
+        for name, mdl in temp_models.items():
+            Xtr = scaler.transform(X_tr) if name == "LogisticRegression" else X_tr
+            Xte = scaler.transform(X_te) if name == "LogisticRegression" else X_te
+            m = _clone_model(mdl)
+            m.fit(Xtr, y_tr)
+            yp = m.predict_proba(Xte)[:, 1]
+            yd = m.predict(Xte)
+            results[name] = {
+                "auc": round(float(roc_auc_score(y_te, yp)), 4),
+                "acc": round(float(accuracy_score(y_te, yd)), 4),
+                "f1": round(float(f1_score(y_te, yd)), 4),
+                "prec": round(float(precision_score(y_te, yd)), 4),
+                "rec": round(float(recall_score(y_te, yd)), 4),
+                "train_size": len(tr_idx), "test_size": len(te_idx),
+            }
+        return results
+
+    # ---------- Anomaly Detection ----------
+
+    def detect_anomalies(self, X, contamination=0.03):
+        """IsolationForest для выявления аномальных заявок."""
+        from sklearn.ensemble import IsolationForest
+        iso = IsolationForest(contamination=contamination, random_state=42, n_jobs=-1)
+        return iso.fit_predict(X)
+
     # ---------- Предсказание скора ----------
 
     def predict_score(self, X: np.ndarray) -> np.ndarray:
@@ -134,7 +184,7 @@ class SubsidyScoringModel:
 
         if row is not None:
             components = {}
-            for comp in ["efficiency_score", "reliability_score", "need_score", "merit_score"]:
+            for comp in ["efficiency_score", "reliability_score", "need_score", "regulatory_score", "merit_score"]:
                 if comp in row.index:
                     components[comp.replace("_score", "")] = {
                         "score": round(float(row[comp]), 1),
@@ -266,7 +316,7 @@ class SubsidyScoringModel:
                 "factors": feature_importance[:5],
             }
             # Add component scores if available
-            for comp in ["efficiency_score", "reliability_score", "need_score", "ml_score", "merit_score"]:
+            for comp in ["efficiency_score", "reliability_score", "need_score", "regulatory_score", "ml_score", "merit_score"]:
                 if comp in first.index:
                     example_explain[comp] = round(float(first[comp]), 1)
 
@@ -315,12 +365,16 @@ _FEATURE_NAMES_RU = {
     "direction_enc": "Направление (код)",
     "subsidy_category_enc": "Категория субсидии (код)",
     "district_enc": "Район (код)",
+    "is_priority_direction": "Приоритет направления (НПА)",
+    "normative_in_npa_range": "Норматив в диапазоне НПА",
+    "pasture_capacity": "Пастбищная ёмкость региона",
 }
 
 _COMPONENT_DESCRIPTIONS = {
     "efficiency_score": "Адекватность запроса нормативам категории",
     "reliability_score": "Паттерны надёжного заявителя",
     "need_score": "Обоснованность потребности региона",
+    "regulatory_score": "Соответствие нормативно-правовым актам РК",
     "merit_score": "Композитный Merit-скор",
 }
 

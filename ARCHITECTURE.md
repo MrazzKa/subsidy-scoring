@@ -2,78 +2,105 @@
 
 ## System Overview
 
-SubsidyScore AI is a merit-based scoring system that ranks agricultural subsidy applications using a composite score combining ML predictions with domain-specific heuristics.
+SubsidyScore AI — merit-based scoring система для сельскохозяйственных субсидий Казахстана. Заменяет FIFO-подход на 5-компонентный Merit Score с интеграцией НПА РК.
 
 ## Pipeline Flow
 
 ```
 GISS Data (xlsx, 36,651 rows)
     │
-    ├── load_data()           → Raw DataFrame (11 cols)
-    ├── parse_dates()         → + 7 temporal features
-    ├── create_target()       → Binary target (86.4% positive)
-    ├── engineer_features()   → + 23 ML features (5 groups, LOO encoding)
-    ├── prepare_model_data()  → X matrix + label encoders
+    ├── load_data()               → Raw DataFrame (11 cols)
+    ├── parse_dates()             → + temporal features
+    ├── create_target()           → Binary target (86.4% positive)
+    ├── engineer_features()       → + 26 ML features (6 groups)
+    │   └── add_regulatory_features()  → +3 НПА-features
+    ├── prepare_model_data()      → X matrix + hash encoders
     │
     ├── SubsidyScoringModel.train()  (5-fold Stratified CV)
-    │   ├── GradientBoosting  → AUC 1.0000, F1 1.0000
-    │   ├── RandomForest      → AUC 1.0000, F1 0.9995
-    │   └── LogisticRegression→ AUC 0.6705, F1 0.9272
+    │   ├── GradientBoosting     (w=0.5)
+    │   ├── RandomForest         (w=0.3)
+    │   └── LogisticRegression   (w=0.2)
     │
-    ├── predict_score()       → ML Score [0-100] (ensemble: 0.5*GB + 0.3*RF + 0.2*LR)
+    ├── temporal_validate()       → 80/20 by date split
+    ├── detect_anomalies()        → IsolationForest (3%)
     │
     ├── MeritScorer.score_dataframe()
-    │   ├── Efficiency  (0.3) — deviation from category median
-    │   ├── Reliability (0.2) — submission timing patterns
-    │   ├── Need        (0.2) — regional need assessment
-    │   └── ML Score    (0.3) — ensemble prediction
+    │   ├── Efficiency    (0.25) — deviation from category median
+    │   ├── Reliability   (0.15) — submission timing patterns
+    │   ├── Need          (0.15) — regional need assessment
+    │   ├── Regulatory    (0.15) — НПА РК compliance
+    │   └── ML Score      (0.30) — ensemble prediction
     │
+    ├── Fairness Audit            → CV between regions
     ├── FIFO vs Merit comparison
-    │   ├── FIFO top-1000 avg score: 77.3
-    │   └── Merit top-1000 avg score: 93.9 (+21.5%)
     │
-    └── Output: ranking.csv, dashboard_data.json, model_results.json
+    └── Output:
+        ├── ranking.csv           — Full ranking with all scores
+        ├── dashboard_data.json   — Dashboard data (overview, stats, fairness, NPA)
+        ├── model_results.json    — CV metrics
+        ├── feature_importance.csv
+        └── trained_model.joblib  — Serialized model for API
 ```
 
 ## Composite Merit Score
 
-The key differentiator: a composite score going beyond pure ML prediction.
-
 ```
-MERIT = 0.3 × Efficiency + 0.2 × Reliability + 0.2 × Need + 0.3 × ML_Score
+MERIT = 0.25 × Efficiency + 0.15 × Reliability + 0.15 × Need + 0.15 × Regulatory + 0.30 × ML
 ```
 
-- **Efficiency Score**: How well the requested amount aligns with category norms. Uses log-ratio deviation from median — applications requesting typical amounts score higher.
-- **Reliability Score**: Based on submission timing (working hours +15, weekdays +10, early submission +15) and regional approval history (+10).
-- **Need Score**: Regions with fewer subsidies per capita score higher (+30). Matching regional agricultural specialization adds points (+20).
-- **ML Score**: Ensemble probability of approval based on all 23 features.
+- **Efficiency Score**: Log-ratio deviation from category median. Applications with typical amounts score higher.
+- **Reliability Score**: Working hours (+15), weekdays (+10), early submission (+15), regional approval rate (+10).
+- **Need Score**: Regions with fewer applications score higher (+30). Matching regional specialization (+20).
+- **Regulatory Score**: Direction in NPA (+20), priority level (+10/+5), normative in range (+15), pasture capacity (+5/+10). Based on V1500011064, V1900018404, V1500012488.
+- **ML Score**: Ensemble probability of approval × 100.
 
-Result: avg merit score 72.98, 59.0% recommended (21,633 of 36,651).
+## Regulatory Framework (НПА РК)
 
-## FIFO vs Merit Comparison
+НПА integrates at two levels:
 
-The core value proposition: replacing first-come-first-served with merit-based ranking.
+**Level A — ML Features** (model learns from normative context):
+- `is_priority_direction`: Priority of livestock direction (high=3, medium=2, low=1, none=0)
+- `normative_in_npa_range`: Whether normative falls within NPA-defined range (1=in, -1=out, 0=N/A)
+- `pasture_capacity`: Pasture carrying capacity of the region's zone (0.08-0.80)
 
-| Metric | FIFO | Merit | Delta |
-|--------|------|-------|-------|
-| Avg score (top-1000) | 77.3 | 93.9 | +21.5% |
-| Recommended in top-1000 | 741 | 1000 | +259 |
-| Medium/high risk in top-1000 | 40 | 0 | -40 |
+**Level B — Composite Score** (Regulatory Score component):
+- Direction recognition (+20)
+- Priority bonus (high +10, medium +5)
+- Normative range check (+15 in range, -5 far out)
+- Pasture zone suitability (+5/+10 for livestock directions)
 
-## Data Leakage Mitigation
+## Data Flow — API
 
-Approval rate features (region, direction, category) use **leave-one-out encoding**: each row's rate is computed excluding itself, preventing information from the target leaking into features.
+```
+Client (React Dashboard)
+    │
+    ├── GET /api/stats          → Full dashboard data (cached from pipeline)
+    ├── GET /api/ranking        → Paginated, filtered ranking from ranking.csv
+    ├── GET /api/explain/{id}   → Score breakdown + regulatory explanation + tips
+    ├── POST /api/score         → Real-time scoring through trained model
+    ├── GET /api/budget-simulation → FIFO vs Merit budget comparison
+    ├── GET /api/regulatory/info → Full NPA reference data
+    ├── POST /api/upload/preview → Column mapping preview
+    ├── POST /api/upload        → Upload + background pipeline run
+    ├── POST /api/chat          → AI assistant (Groq/Llama 3.3)
+    └── GET /api/export/ranking → Excel/CSV export
+```
 
-## Explainability
+## Smart Column Mapper
 
-Every application gets:
-1. A composite merit score (0-100)
-2. Component breakdown (efficiency, reliability, need, ML) with descriptions
-3. Top-5 contributing features with human-readable explanations in Russian
-4. Risk classification (recommended / low_risk / medium_risk / high_risk)
+Enables uploading arbitrary data files with different column names:
+1. Exact match against known aliases (Russian/English)
+2. Fuzzy matching via SequenceMatcher (threshold 0.55)
+3. Reports mapping confidence and unmatched required columns
 
-This ensures the commission understands **why** each application scored as it did.
+## Anomaly Detection
+
+IsolationForest (contamination=3%) on the full 26-feature space. Anomalous applications are flagged in ranking and dashboard.
+
+## Fairness Audit
+
+Coefficient of Variation (CV) across regional average Merit Scores. CV < 10% considered fair. Dashboard shows per-region breakdown of recommendation rates.
 
 ## Human-in-the-Loop
 
-The system **recommends** but does not **decide**. The ranking and explanations serve as decision support for the subsidy commission. Final approval authority remains with humans.
+The system recommends but does not decide. The ranking and explanations serve as decision support for the subsidy commission. Final approval authority remains with humans.

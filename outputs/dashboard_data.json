@@ -1,10 +1,10 @@
 {
   "overview": {
     "total_applications": 36651,
-    "avg_score": 72.97,
+    "avg_score": 75.26,
     "total_amount": 139325578572.0,
-    "recommended": 20732,
-    "pct_recommended": 56.6
+    "recommended": 24086,
+    "pct_recommended": 65.7
   },
   "score_distribution": [
     {
@@ -45,478 +45,479 @@
     },
     {
       "range": "45-50",
-      "count": 23
+      "count": 1
     },
     {
       "range": "50-55",
-      "count": 388
+      "count": 49
     },
     {
       "range": "55-60",
-      "count": 2895
+      "count": 672
     },
     {
       "range": "60-65",
-      "count": 6199
+      "count": 4168
     },
     {
       "range": "65-70",
-      "count": 6414
+      "count": 7675
     },
     {
       "range": "70-75",
-      "count": 5136
+      "count": 6523
     },
     {
       "range": "75-80",
-      "count": 5282
+      "count": 5474
     },
     {
       "range": "80-85",
-      "count": 5071
+      "count": 5644
     },
     {
       "range": "85-90",
-      "count": 3889
+      "count": 4219
     },
     {
       "range": "90-95",
-      "count": 1326
+      "count": 2112
     },
     {
       "range": "95-100",
-      "count": 28
+      "count": 114
     }
   ],
   "risk_distribution": [
     {
       "level": "recommended",
-      "count": 20732
+      "count": 24086
     },
     {
       "level": "low_risk",
-      "count": 15896
+      "count": 12564
     },
     {
       "level": "medium_risk",
-      "count": 23
+      "count": 1
     }
   ],
   "direction_stats": [
     {
       "direction": "Субсидирование в верблюдоводстве",
       "count": 1382,
-      "avg_score": 74.27
+      "avg_score": 76.58
     },
     {
       "direction": "Субсидирование в козоводстве",
       "count": 3,
-      "avg_score": 71.53
+      "avg_score": 72.53
     },
     {
       "direction": "Субсидирование в коневодстве",
       "count": 1382,
-      "avg_score": 77.3
+      "avg_score": 79.05
     },
     {
       "direction": "Субсидирование в овцеводстве",
       "count": 3560,
-      "avg_score": 72.56
+      "avg_score": 76.05
     },
     {
       "direction": "Субсидирование в птицеводстве",
       "count": 5360,
-      "avg_score": 75.04
+      "avg_score": 76.0
     },
     {
       "direction": "Субсидирование в пчеловодстве",
       "count": 204,
-      "avg_score": 71.47
+      "avg_score": 70.32
     },
     {
       "direction": "Субсидирование в свиноводстве",
       "count": 116,
-      "avg_score": 73.97
+      "avg_score": 73.42
     },
     {
       "direction": "Субсидирование в скотоводстве",
       "count": 24397,
-      "avg_score": 72.27
+      "avg_score": 74.74
     },
     {
       "direction": "Субсидирование затрат по искусственному осеменению",
       "count": 247,
-      "avg_score": 73.05
+      "avg_score": 75.83
     }
   ],
   "region_stats": [
     {
       "region": "Акмолинская область",
       "count": 963,
-      "avg_score": 72.26,
-      "recommended": 516,
-      "pct_recommended": 53.6
+      "avg_score": 74.27,
+      "recommended": 671,
+      "pct_recommended": 69.7
     },
     {
       "region": "Актюбинская область",
       "count": 2385,
-      "avg_score": 73.61,
-      "recommended": 1312,
-      "pct_recommended": 55.0
+      "avg_score": 76.22,
+      "recommended": 1411,
+      "pct_recommended": 59.2
     },
     {
       "region": "Алматинская область",
       "count": 2681,
-      "avg_score": 75.04,
-      "recommended": 1855,
-      "pct_recommended": 69.2
+      "avg_score": 75.84,
+      "recommended": 2015,
+      "pct_recommended": 75.2
     },
     {
       "region": "Атырауская область",
       "count": 617,
-      "avg_score": 76.11,
-      "recommended": 350,
-      "pct_recommended": 56.7
+      "avg_score": 76.79,
+      "recommended": 364,
+      "pct_recommended": 59.0
     },
     {
       "region": "Восточно-Казахстанская область",
       "count": 1376,
-      "avg_score": 73.19,
-      "recommended": 717,
-      "pct_recommended": 52.1
+      "avg_score": 75.35,
+      "recommended": 944,
+      "pct_recommended": 68.6
     },
     {
       "region": "Жамбылская область",
       "count": 3312,
-      "avg_score": 71.83,
-      "recommended": 1876,
-      "pct_recommended": 56.6
+      "avg_score": 73.64,
+      "recommended": 2158,
+      "pct_recommended": 65.2
     },
     {
       "region": "Западно-Казахстанская область",
       "count": 5156,
-      "avg_score": 70.46,
-      "recommended": 2727,
-      "pct_recommended": 52.9
+      "avg_score": 73.65,
+      "recommended": 2990,
+      "pct_recommended": 58.0
     },
     {
       "region": "Карагандинская область",
       "count": 926,
-      "avg_score": 76.13,
-      "recommended": 565,
-      "pct_recommended": 61.0
+      "avg_score": 78.76,
+      "recommended": 621,
+      "pct_recommended": 67.1
     },
     {
       "region": "Костанайская область",
       "count": 2509,
-      "avg_score": 73.84,
-      "recommended": 1477,
-      "pct_recommended": 58.9
+      "avg_score": 75.97,
+      "recommended": 1911,
+      "pct_recommended": 76.2
     },
     {
       "region": "Кызылординская область",
       "count": 1260,
-      "avg_score": 74.91,
-      "recommended": 790,
-      "pct_recommended": 62.7
+      "avg_score": 76.08,
+      "recommended": 840,
+      "pct_recommended": 66.7
     },
     {
       "region": "Мангистауская область",
       "count": 3423,
-      "avg_score": 73.89,
-      "recommended": 2352,
-      "pct_recommended": 68.7
+      "avg_score": 76.83,
+      "recommended": 2846,
+      "pct_recommended": 83.1
     },
     {
       "region": "Павлодарская область",
       "count": 2281,
-      "avg_score": 70.29,
-      "recommended": 893,
-      "pct_recommended": 39.1
+      "avg_score": 73.81,
+      "recommended": 1202,
+      "pct_recommended": 52.7
     },
     {
       "region": "Северо-Казахстанская область",
       "count": 1554,
-      "avg_score": 72.23,
-      "recommended": 846,
-      "pct_recommended": 54.4
+      "avg_score": 74.2,
+      "recommended": 1133,
+      "pct_recommended": 72.9
     },
     {
       "region": "Туркестанская область",
       "count": 2281,
-      "avg_score": 70.32,
-      "recommended": 871,
-      "pct_recommended": 38.2
+      "avg_score": 71.88,
+      "recommended": 1064,
+      "pct_recommended": 46.6
     },
     {
       "region": "г.Шымкент",
       "count": 405,
-      "avg_score": 68.7,
-      "recommended": 116,
-      "pct_recommended": 28.6
+      "avg_score": 69.01,
+      "recommended": 131,
+      "pct_recommended": 32.3
     },
     {
       "region": "область Абай",
       "count": 3683,
-      "avg_score": 75.35,
-      "recommended": 2380,
-      "pct_recommended": 64.6
+      "avg_score": 77.98,
+      "recommended": 2604,
+      "pct_recommended": 70.7
     },
     {
       "region": "область Жетісу",
       "count": 1479,
-      "avg_score": 74.82,
-      "recommended": 886,
-      "pct_recommended": 59.9
+      "avg_score": 77.05,
+      "recommended": 969,
+      "pct_recommended": 65.5
     },
     {
       "region": "область Ұлытау",
       "count": 360,
-      "avg_score": 75.9,
-      "recommended": 203,
-      "pct_recommended": 56.4
+      "avg_score": 77.66,
+      "recommended": 212,
+      "pct_recommended": 58.9
     }
   ],
   "model_results": {
     "GradientBoosting": {
-      "auc": 0.7458,
-      "acc": 0.8666,
-      "f1": 0.9282,
-      "prec": 0.8679,
-      "rec": 0.9975
+      "auc": 0.7502,
+      "acc": 0.8669,
+      "f1": 0.9283,
+      "prec": 0.8682,
+      "rec": 0.9974
     },
     "RandomForest": {
-      "auc": 0.7223,
+      "auc": 0.7321,
       "acc": 0.8643,
       "f1": 0.9272,
       "prec": 0.8643,
       "rec": 1.0
     },
     "LogisticRegression": {
-      "auc": 0.6198,
-      "acc": 0.8643,
+      "auc": 0.6308,
+      "acc": 0.8642,
       "f1": 0.9272,
       "prec": 0.8643,
-      "rec": 1.0
+      "rec": 0.9999
     }
   },
   "feature_importance": [
     {
       "feature": "submission_speed",
-      "importance": 0.003683
+      "importance": 0.004633
     },
     {
       "feature": "log_normative",
-      "importance": 0.003378
-    },
-    {
-      "feature": "region_enc",
-      "importance": 0.002532
+      "importance": 0.003094
     },
     {
       "feature": "region_application_count",
-      "importance": 0.002456
+      "importance": 0.002357
     },
     {
       "feature": "district_application_count",
-      "importance": 0.001664
-    },
-    {
-      "feature": "month_application_count",
-      "importance": 0.001599
+      "importance": 0.00209
     },
     {
       "feature": "subsidy_category_enc",
-      "importance": 0.001239
+      "importance": 0.001964
     },
     {
-      "feature": "district_enc",
-      "importance": 0.000955
+      "feature": "pasture_capacity",
+      "importance": 0.001692
     },
     {
-      "feature": "day_of_month",
-      "importance": 0.000906
-    },
-    {
-      "feature": "log_amount",
-      "importance": 0.000366
+      "feature": "month_application_count",
+      "importance": 0.001146
     },
     {
       "feature": "log_estimated_units",
-      "importance": 0.000366
+      "importance": 0.000999
     },
     {
-      "feature": "amount_vs_regional_median",
-      "importance": 0.000366
+      "feature": "day_of_month",
+      "importance": 0.000966
     },
     {
-      "feature": "amount_vs_category_median",
+      "feature": "is_priority_direction",
+      "importance": 0.000949
+    },
+    {
+      "feature": "district_enc",
+      "importance": 0.000922
+    },
+    {
+      "feature": "region_enc",
+      "importance": 0.000666
+    },
+    {
+      "feature": "direction_enc",
       "importance": 0.00036
     },
     {
       "feature": "hour",
-      "importance": 0.000311
+      "importance": 0.000344
     },
     {
-      "feature": "day_of_week",
-      "importance": 0.000136
+      "feature": "amount_vs_regional_median",
+      "importance": 0.000278
     }
   ],
   "top_applications": [
     {
       "rank": 1,
-      "request_num": "1200100307891.0",
-      "region": "Атырауская область",
-      "district": "Исатайский район",
-      "direction": "Субсидирование в скотоводстве",
-      "amount": 780000.0,
-      "score": 96.11,
-      "risk_level": "recommended"
-    },
-    {
-      "rank": 2,
-      "request_num": "1200100305744.0",
-      "region": "Атырауская область",
-      "district": "Исатайский район",
-      "direction": "Субсидирование в скотоводстве",
-      "amount": 790000.0,
-      "score": 96.0,
-      "risk_level": "recommended"
-    },
-    {
-      "rank": 3,
       "request_num": "1200100283989.0",
       "region": "Карагандинская область",
       "district": "Бухар-Жырауский район",
       "direction": "Субсидирование в скотоводстве",
       "amount": 750000.0,
-      "score": 95.84,
+      "score": 96.66,
       "risk_level": "recommended"
     },
     {
-      "rank": 4,
-      "request_num": "1200100311615.0",
-      "region": "Атырауская область",
-      "district": "Курмангазинский район",
-      "direction": "Субсидирование в скотоводстве",
-      "amount": 800000.0,
-      "score": 95.67,
-      "risk_level": "recommended"
-    },
-    {
-      "rank": 5,
+      "rank": 2,
       "request_num": "1200100286608.0",
       "region": "Карагандинская область",
       "district": "Шетский район",
       "direction": "Субсидирование в скотоводстве",
       "amount": 740000.0,
-      "score": 95.66,
+      "score": 96.51,
       "risk_level": "recommended"
     },
     {
-      "rank": 6,
+      "rank": 3,
       "request_num": "1200100284994.0",
       "region": "область Жетісу",
       "district": "Панфиловский район",
       "direction": "Субсидирование в скотоводстве",
       "amount": 800000.0,
-      "score": 95.6,
+      "score": 96.4,
       "risk_level": "recommended"
     },
     {
-      "rank": 7,
+      "rank": 4,
       "request_num": "1200100297027.0",
       "region": "Карагандинская область",
       "district": "Бухар-Жырауский район",
       "direction": "Субсидирование в скотоводстве",
       "amount": 740000.0,
-      "score": 95.47,
+      "score": 96.4,
       "risk_level": "recommended"
     },
     {
-      "rank": 8,
-      "request_num": "1200100298725.0",
-      "region": "область Жетісу",
-      "district": "Панфиловский район",
-      "direction": "Субсидирование в скотоводстве",
-      "amount": 800000.0,
-      "score": 95.43,
-      "risk_level": "recommended"
-    },
-    {
-      "rank": 9,
+      "rank": 5,
       "request_num": "1200100305812.0",
       "region": "Карагандинская область",
       "district": "Актогайский район",
       "direction": "Субсидирование в скотоводстве",
       "amount": 750000.0,
-      "score": 95.42,
+      "score": 96.4,
       "risk_level": "recommended"
     },
     {
-      "rank": 10,
+      "rank": 6,
+      "request_num": "1200100298725.0",
+      "region": "область Жетісу",
+      "district": "Панфиловский район",
+      "direction": "Субсидирование в скотоводстве",
+      "amount": 800000.0,
+      "score": 96.31,
+      "risk_level": "recommended"
+    },
+    {
+      "rank": 7,
+      "request_num": "1200100302324.0",
+      "region": "Карагандинская область",
+      "district": "Шетский район",
+      "direction": "Субсидирование в скотоводстве",
+      "amount": 830000.0,
+      "score": 96.24,
+      "risk_level": "recommended"
+    },
+    {
+      "rank": 8,
       "request_num": "1200100284799.0",
       "region": "область Жетісу",
       "district": "Панфиловский район",
       "direction": "Субсидирование в скотоводстве",
       "amount": 750000.0,
-      "score": 95.39,
+      "score": 96.23,
+      "risk_level": "recommended"
+    },
+    {
+      "rank": 9,
+      "request_num": "1200100285980.0",
+      "region": "Карагандинская область",
+      "district": "Каркаралинский район",
+      "direction": "Субсидирование в скотоводстве",
+      "amount": 840000.0,
+      "score": 96.22,
+      "risk_level": "recommended"
+    },
+    {
+      "rank": 10,
+      "request_num": "1200100285919.0",
+      "region": "Восточно-Казахстанская область",
+      "district": "Курчумский район",
+      "direction": "Субсидирование в скотоводстве",
+      "amount": 810000.0,
+      "score": 96.1,
       "risk_level": "recommended"
     }
   ],
   "example_explain": {
-    "request_num": "1200100307891.0",
-    "score": 96.11,
+    "request_num": "1200100283989.0",
+    "score": 96.66,
     "risk_level": "recommended",
-    "region": "Атырауская область",
+    "region": "Карагандинская область",
     "direction": "Субсидирование в скотоводстве",
-    "amount": 780000.0,
+    "amount": 750000.0,
     "factors": [
       {
         "feature": "submission_speed",
-        "importance": 0.003683
+        "importance": 0.004633
       },
       {
         "feature": "log_normative",
-        "importance": 0.003378
-      },
-      {
-        "feature": "region_enc",
-        "importance": 0.002532
+        "importance": 0.003094
       },
       {
         "feature": "region_application_count",
-        "importance": 0.002456
+        "importance": 0.002357
       },
       {
         "feature": "district_application_count",
-        "importance": 0.001664
+        "importance": 0.00209
+      },
+      {
+        "feature": "subsidy_category_enc",
+        "importance": 0.001964
       }
     ],
-    "efficiency_score": 100.0,
-    "reliability_score": 92.8,
-    "need_score": 96.4,
-    "ml_score": 94.3,
-    "merit_score": 96.1
+    "efficiency_score": 98.1,
+    "reliability_score": 94.3,
+    "need_score": 94.6,
+    "regulatory_score": 100.0,
+    "ml_score": 96.0,
+    "merit_score": 96.7
   },
   "fifo_vs_merit": {
-    "fifo_top1000_avg_score": 77.2,
-    "merit_top1000_avg_score": 92.4,
+    "fifo_top1000_avg_score": 78.9,
+    "merit_top1000_avg_score": 93.5,
     "fifo_top1000_high_risk_count": 0,
     "merit_top1000_high_risk_count": 0,
     "fifo_top1000_medium_risk_count": 0,
     "merit_top1000_medium_risk_count": 0,
-    "score_improvement_pct": 19.7,
-    "budget_efficiency_gain": "При merit-based подходе 272 заявок с пониженным приоритетом (low/medium/high risk) из топ-1000 были бы заменены на рекомендованные. Средний скор вырос бы с 77.2 до 92.4 (+19.7%)",
+    "score_improvement_pct": 18.5,
+    "budget_efficiency_gain": "При merit-based подходе 234 заявок с пониженным приоритетом (low/medium/high risk) из топ-1000 были бы заменены на рекомендованные. Средний скор вырос бы с 78.9 до 93.5 (+18.5%)",
     "risk_comparison": [
       {
         "level": "recommended",
-        "fifo": 728,
+        "fifo": 766,
         "merit": 1000
       },
       {
         "level": "low_risk",
-        "fifo": 272,
+        "fifo": 234,
         "merit": 0
       },
       {
@@ -528,6 +529,331 @@
         "level": "high_risk",
         "fifo": 0,
         "merit": 0
+      }
+    ]
+  },
+  "temporal_validation": {
+    "GradientBoosting": {
+      "auc": 0.6472,
+      "acc": 0.8414,
+      "f1": 0.9136,
+      "prec": 0.846,
+      "rec": 0.9929,
+      "train_size": 29320,
+      "test_size": 7331
+    },
+    "RandomForest": {
+      "auc": 0.6209,
+      "acc": 0.8444,
+      "f1": 0.9156,
+      "prec": 0.8447,
+      "rec": 0.9995,
+      "train_size": 29320,
+      "test_size": 7331
+    },
+    "LogisticRegression": {
+      "auc": 0.5771,
+      "acc": 0.8324,
+      "f1": 0.9082,
+      "prec": 0.8452,
+      "rec": 0.9813,
+      "train_size": 29320,
+      "test_size": 7331
+    }
+  },
+  "regulatory_info": {
+    "documents": [
+      {
+        "id": "V1500011064",
+        "title": "Предельно допустимые нормы нагрузки на площадь пастбищ",
+        "authority": "Приказ МСХ РК от 14.04.2015 №3-3/332",
+        "url": "https://adilet.zan.kz/rus/docs/V1500011064",
+        "usage": "ML-feature pasture_capacity + Regulatory Score для скотоводческих направлений"
+      },
+      {
+        "id": "V1900018404",
+        "title": "Правила субсидирования развития племенного животноводства",
+        "authority": "Приказ МСХ РК",
+        "url": "https://adilet.zan.kz/rus/docs/V1900018404",
+        "usage": "ML-features is_priority_direction, normative_in_npa_range + Regulatory Score"
+      },
+      {
+        "id": "V1500012488",
+        "title": "Правила субсидирования повышения урожайности растениеводства",
+        "authority": "Приказ МСХ РК",
+        "url": "https://adilet.zan.kz/rus/docs/V1500012488",
+        "usage": "Нормативы возмещения затрат растениеводства (50-70%)"
+      }
+    ],
+    "pasture_zones": {
+      "лесостепная": {
+        "norm": 0.8,
+        "desc": "Северный КЗ, высокая ёмкость"
+      },
+      "степная": {
+        "norm": 0.5,
+        "desc": "Центральный КЗ"
+      },
+      "сухостепная": {
+        "norm": 0.3,
+        "desc": "Западный КЗ"
+      },
+      "полупустынная": {
+        "norm": 0.15,
+        "desc": "Южный КЗ"
+      },
+      "пустынная": {
+        "norm": 0.08,
+        "desc": "Юго-запад КЗ, низкая ёмкость"
+      },
+      "горная": {
+        "norm": 0.4,
+        "desc": "Горные районы"
+      }
+    },
+    "region_zones": {
+      "Акмолинская область": "степная",
+      "Актюбинская область": "сухостепная",
+      "Алматинская область": "горная",
+      "Атырауская область": "пустынная",
+      "Восточно-Казахстанская область": "лесостепная",
+      "Жамбылская область": "полупустынная",
+      "Западно-Казахстанская область": "сухостепная",
+      "Карагандинская область": "степная",
+      "Костанайская область": "степная",
+      "Кызылординская область": "пустынная",
+      "Мангистауская область": "пустынная",
+      "Павлодарская область": "степная",
+      "Северо-Казахстанская область": "лесостепная",
+      "Туркестанская область": "полупустынная",
+      "область Ұлытау": "сухостепная",
+      "область Абай": "степная",
+      "область Жетісу": "горная",
+      "город Шымкент": "полупустынная"
+    },
+    "livestock_norms": {
+      "Субсидирование в скотоводстве": {
+        "npa": "V1900018404",
+        "priority": "high",
+        "normative_range": [
+          5000,
+          50000
+        ],
+        "desc": "Развитие племенного КРС, повышение продуктивности"
+      },
+      "Субсидирование в овцеводстве": {
+        "npa": "V1900018404",
+        "priority": "high",
+        "normative_range": [
+          1000,
+          15000
+        ],
+        "desc": "Племенное овцеводство, шерсть, селекция"
+      },
+      "Субсидирование в коневодстве": {
+        "npa": "V1900018404",
+        "priority": "medium",
+        "normative_range": [
+          5000,
+          40000
+        ],
+        "desc": "Племенное коневодство"
+      },
+      "Субсидирование в верблюдоводстве": {
+        "npa": "V1900018404",
+        "priority": "medium",
+        "normative_range": [
+          5000,
+          30000
+        ],
+        "desc": "Племенное верблюдоводство"
+      },
+      "Субсидирование в птицеводстве": {
+        "npa": "V1900018404",
+        "priority": "medium",
+        "normative_range": [
+          100,
+          5000
+        ],
+        "desc": "Птицеводство, яйценоскость"
+      },
+      "Субсидирование в свиноводстве": {
+        "npa": "V1900018404",
+        "priority": "low",
+        "normative_range": [
+          3000,
+          20000
+        ],
+        "desc": "Племенное свиноводство"
+      },
+      "Субсидирование в козоводстве": {
+        "npa": "V1900018404",
+        "priority": "medium",
+        "normative_range": [
+          1000,
+          10000
+        ],
+        "desc": "Племенное козоводство"
+      },
+      "Субсидирование в пчеловодстве": {
+        "npa": "V1900018404",
+        "priority": "low",
+        "normative_range": [
+          500,
+          5000
+        ],
+        "desc": "Племенное пчеловодство"
+      },
+      "Субсидирование затрат по искусственному осеменению": {
+        "npa": "V1900018404",
+        "priority": "high",
+        "normative_range": [
+          2000,
+          10000
+        ],
+        "desc": "Искусственное осеменение КРС и МРС"
+      }
+    },
+    "crop_norms": {
+      "npa": "V1500012488",
+      "desc": "Субсидирование повышения урожайности и качества продукции растениеводства",
+      "reimbursement_rates": {
+        "оригинальные семена": 0.7,
+        "элитные семена": 0.7,
+        "первая репродукция": 0.5,
+        "гибриды F1": 0.5
+      }
+    }
+  },
+  "anomaly_stats": {
+    "total_anomalies": 1100,
+    "pct": 3.0
+  },
+  "fairness_audit": {
+    "cv": 3.2,
+    "is_fair": true,
+    "min_pct": 32.3,
+    "max_pct": 83.1,
+    "details": {
+      "область Абай": {
+        "count": 3683,
+        "avg_merit": 77.98,
+        "pct_recommended": 70.7
+      },
+      "Костанайская область": {
+        "count": 2509,
+        "avg_merit": 75.97,
+        "pct_recommended": 76.2
+      },
+      "Актюбинская область": {
+        "count": 2385,
+        "avg_merit": 76.22,
+        "pct_recommended": 59.2
+      },
+      "Карагандинская область": {
+        "count": 926,
+        "avg_merit": 78.76,
+        "pct_recommended": 67.1
+      },
+      "область Жетісу": {
+        "count": 1479,
+        "avg_merit": 77.05,
+        "pct_recommended": 65.5
+      },
+      "Западно-Казахстанская область": {
+        "count": 5156,
+        "avg_merit": 73.65,
+        "pct_recommended": 58.0
+      },
+      "область Ұлытау": {
+        "count": 360,
+        "avg_merit": 77.66,
+        "pct_recommended": 58.9
+      },
+      "Туркестанская область": {
+        "count": 2281,
+        "avg_merit": 71.88,
+        "pct_recommended": 46.6
+      },
+      "Павлодарская область": {
+        "count": 2281,
+        "avg_merit": 73.81,
+        "pct_recommended": 52.7
+      },
+      "Восточно-Казахстанская область": {
+        "count": 1376,
+        "avg_merit": 75.35,
+        "pct_recommended": 68.6
+      },
+      "Атырауская область": {
+        "count": 617,
+        "avg_merit": 76.79,
+        "pct_recommended": 59.0
+      },
+      "Жамбылская область": {
+        "count": 3312,
+        "avg_merit": 73.64,
+        "pct_recommended": 65.2
+      },
+      "Алматинская область": {
+        "count": 2681,
+        "avg_merit": 75.84,
+        "pct_recommended": 75.2
+      },
+      "Северо-Казахстанская область": {
+        "count": 1554,
+        "avg_merit": 74.2,
+        "pct_recommended": 72.9
+      },
+      "Кызылординская область": {
+        "count": 1260,
+        "avg_merit": 76.08,
+        "pct_recommended": 66.7
+      },
+      "Акмолинская область": {
+        "count": 963,
+        "avg_merit": 74.27,
+        "pct_recommended": 69.7
+      },
+      "Мангистауская область": {
+        "count": 3423,
+        "avg_merit": 76.83,
+        "pct_recommended": 83.1
+      },
+      "г.Шымкент": {
+        "count": 405,
+        "avg_merit": 69.01,
+        "pct_recommended": 32.3
+      }
+    }
+  },
+  "merit_formula": {
+    "formula": "MERIT = 0.25×Eff + 0.15×Rel + 0.15×Need + 0.15×Reg + 0.30×ML",
+    "components": [
+      {
+        "name": "Efficiency",
+        "weight": 0.25,
+        "desc": "Адекватность запроса нормативам"
+      },
+      {
+        "name": "Reliability",
+        "weight": 0.15,
+        "desc": "Паттерны надёжного заявителя"
+      },
+      {
+        "name": "Need",
+        "weight": 0.15,
+        "desc": "Потребность региона"
+      },
+      {
+        "name": "Regulatory",
+        "weight": 0.15,
+        "desc": "Соответствие НПА РК"
+      },
+      {
+        "name": "ML Score",
+        "weight": 0.3,
+        "desc": "Прогноз ML-модели"
       }
     ]
   }

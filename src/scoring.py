@@ -6,11 +6,15 @@ SubsidyScore AI — Composite Merit Scorer
 import numpy as np
 import pandas as pd
 
+from src.regulatory import compute_regulatory_score, LIVESTOCK_NORMS
+
 
 class MeritScorer:
     """
-    Композитный merit-скор:
-    MERIT = 0.3*Efficiency + 0.2*Reliability + 0.2*Need + 0.3*ML_Score
+    Композитный merit-скор (5 компонентов):
+    MERIT = 0.25*Efficiency + 0.15*Reliability + 0.15*Need + 0.15*Regulatory + 0.30*ML
+
+    Regulatory Score основан на НПА РК (V1500011064, V1900018404, V1500012488).
     """
 
     def __init__(self):
@@ -112,11 +116,12 @@ class MeritScorer:
     # ---------- Композитный скор ----------
 
     def compute_composite_score(self, row: pd.Series, ml_score: float) -> float:
-        """MERIT = 0.3*Efficiency + 0.2*Reliability + 0.2*Need + 0.3*ML_Score"""
+        """MERIT = 0.25*Eff + 0.15*Rel + 0.15*Need + 0.15*Reg + 0.30*ML"""
         eff = self.compute_efficiency_score(row)
         rel = self.compute_reliability_score(row)
         need = self.compute_need_score(row)
-        merit = 0.3 * eff + 0.2 * rel + 0.2 * need + 0.3 * ml_score
+        reg = compute_regulatory_score(row)
+        merit = 0.25 * eff + 0.15 * rel + 0.15 * need + 0.15 * reg + 0.30 * ml_score
         return float(np.clip(merit, 0, 100))
 
     def score_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -125,6 +130,7 @@ class MeritScorer:
         df["efficiency_score"] = df.apply(self.compute_efficiency_score, axis=1)
         df["reliability_score"] = df.apply(self.compute_reliability_score, axis=1)
         df["need_score"] = df.apply(self.compute_need_score, axis=1)
+        df["regulatory_score"] = df.apply(compute_regulatory_score, axis=1)
         df["merit_score"] = df.apply(
             lambda row: self.compute_composite_score(row, row.get("ml_score", 50)),
             axis=1,
@@ -132,6 +138,31 @@ class MeritScorer:
         df["merit_rank"] = df["merit_score"].rank(ascending=False, method="min").astype(int)
         df["merit_risk_level"] = df["merit_score"].apply(_merit_risk)
         return df
+
+
+def generate_improvement_tips(row: pd.Series, scorer: MeritScorer) -> list:
+    """Рекомендации по улучшению Merit Score для заявителя."""
+    tips = []
+    eff = scorer.compute_efficiency_score(row)
+    if eff < 80:
+        cat = row.get("subsidy_category", "other")
+        median = scorer._category_medians.get(cat, 0)
+        if median > 0:
+            tips.append({"tip": f"Скорректируйте объём ближе к медиане категории ({median:,.0f} ед). Текущий Efficiency: {eff:.0f}/100.", "gain": round(min((100-eff)*0.25, 15), 1), "component": "Efficiency"})
+    if row.get("is_working_hours", 0) == 0:
+        tips.append({"tip": "Подавайте заявку в рабочие часы (9:00–17:00) — это добавит до +15 к Reliability.", "gain": round(15*0.15, 1), "component": "Reliability"})
+    if row.get("is_weekday", 0) == 0:
+        tips.append({"tip": "Подавайте заявку в рабочий день (пн–пт) — это добавит до +10 к Reliability.", "gain": round(10*0.15, 1), "component": "Reliability"})
+    if row.get("submission_speed", 0) < 0.5:
+        tips.append({"tip": "Подавайте заявку в начале периода приёма — ранняя подача повышает Reliability.", "gain": round(10*0.15, 1), "component": "Reliability"})
+    norms = LIVESTOCK_NORMS.get(str(row.get("direction", "")))
+    if norms:
+        lo, hi = norms["normative_range"]
+        normative = float(row.get("normative", 0) or 0)
+        if normative > 0 and (normative < lo or normative > hi):
+            tips.append({"tip": f"Норматив ({normative:,.0f} тг) вне диапазона НПА ({lo:,}–{hi:,} тг). Корректировка добавит до +15 к Regulatory.", "gain": round(15*0.15, 1), "component": "Regulatory"})
+    tips.sort(key=lambda t: t["gain"], reverse=True)
+    return tips[:5]
 
 
 def _merit_risk(score: float) -> str:

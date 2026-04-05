@@ -4,8 +4,11 @@ __pycache__/
 .claude/
 .pytest_cache/
 outputs/ranking.csv
+outputs/export_ranking.*
 data/*.xlsx
+data/*.xls
+data/*.csv
 *.egg-info/
-dist/
 build/
 .venv/
+node_modules/

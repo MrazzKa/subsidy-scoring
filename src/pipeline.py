@@ -94,16 +94,17 @@ def sub_header(text: str):
 
 # ---------- Pipeline ----------
 
-def main():
+def run_pipeline(data_path: str, output_dir: str) -> dict:
+    """Основной pipeline. Возвращает summary dict."""
     t0 = time.time()
 
     header("SubsidyScore AI — Merit-Based Scoring Pipeline")
-    print(f"  Data: {DATA_PATH.name}")
-    print(f"  Output: {OUTPUT_DIR}")
+    print(f"  Data: {Path(data_path).name}")
+    print(f"  Output: {output_dir}")
 
     # 1. Загрузка
     header("1. Загрузка данных")
-    df = load_data(str(DATA_PATH))
+    df = load_data(data_path)
     print(f"  Загружено строк: {len(df):,}")
     print(f"  Колонки: {list(df.columns)}")
 
@@ -144,6 +145,18 @@ def main():
         print(f"  {name:25s}  AUC={metrics['auc']:.4f}  Acc={metrics['acc']:.4f}  "
               f"F1={metrics['f1']:.4f}  Prec={metrics['prec']:.4f}  Rec={metrics['rec']:.4f}")
 
+    # 6b. Temporal Validation
+    sub_header("6b. Temporal Validation (80/20 по дате)")
+    temporal_results = model.temporal_validate(X, y, df_full["date"].values, feature_cols)
+    for name, metrics in temporal_results.items():
+        print(f"  {name:25s}  AUC={metrics['auc']:.4f}  Acc={metrics['acc']:.4f}  F1={metrics['f1']:.4f}")
+
+    # 6c. Сохранение модели
+    import joblib
+    model_path = Path(output_dir) / "trained_model.joblib"
+    joblib.dump({"models": model.models, "scaler": model.scaler, "feature_cols": model.feature_cols, "importances": model.importances}, str(model_path))
+    print(f"  Модель сохранена: {model_path}")
+
     # 7. ML-скоринг
     header("7. ML-скоринг")
     ranking = model.generate_ranking(X, df_full)
@@ -154,6 +167,13 @@ def main():
         cnt = (ranking["risk_level"] == level).sum()
         pct = cnt / len(ranking) * 100
         print(f"    {level:15s}: {cnt:6,} ({pct:5.1f}%)")
+
+    # 7b. Anomaly Detection
+    sub_header("7b. Детектор аномалий (IsolationForest)")
+    anomaly_labels = model.detect_anomalies(X)
+    ranking["is_anomaly"] = anomaly_labels == -1
+    anomaly_count = int(ranking["is_anomaly"].sum())
+    print(f"  Аномалий: {anomaly_count} ({anomaly_count/len(ranking)*100:.1f}%)")
 
     # 8. Композитный Merit-скор
     header("8. Композитный Merit-скор")
@@ -180,6 +200,19 @@ def main():
     print(f"  FIFO medium_risk в топ-1000:       {fifo_vs_merit['fifo_top1000_medium_risk_count']}")
     print(f"  Merit medium_risk в топ-1000:      {fifo_vs_merit['merit_top1000_medium_risk_count']}")
 
+    # 9b. Fairness Audit
+    sub_header("9b. Fairness Audit")
+    import statistics
+    fairness = {}
+    for region in ranking["region"].unique():
+        rd = ranking[ranking["region"] == region]
+        fairness[region] = {"count": len(rd), "avg_merit": round(float(rd["merit_score"].mean()), 2), "pct_recommended": round((rd["merit_risk_level"]=="recommended").mean()*100, 1)}
+    regional_scores = [v["avg_merit"] for v in fairness.values()]
+    cv = statistics.stdev(regional_scores) / statistics.mean(regional_scores) * 100
+    pct_values = [v["pct_recommended"] for v in fairness.values()]
+    print(f"  CV между регионами: {cv:.1f}%")
+    print(f"  Диапазон % рекомендованных: {min(pct_values):.1f}% — {max(pct_values):.1f}%")
+
     # 10. Explainability (3 примера)
     header("10. Explainability — примеры объяснений")
     sample_indices = [0, len(X) // 2, len(X) - 1]
@@ -198,16 +231,40 @@ def main():
 
     # 11. Сохранение
     header("11. Сохранение результатов")
-    model.save_results(ranking, results, str(OUTPUT_DIR))
+    model.save_results(ranking, results, output_dir)
 
-    # Inject FIFO vs Merit into dashboard_data.json
+    # Inject additional data into dashboard_data.json
     import json
-    dash_path = OUTPUT_DIR / "dashboard_data.json"
+    from src.regulatory import get_all_npa_info
+
+    dash_path = Path(output_dir) / "dashboard_data.json"
     with open(dash_path, encoding="utf-8") as f:
         dash = json.load(f)
     dash["fifo_vs_merit"] = fifo_vs_merit
+    dash["temporal_validation"] = temporal_results
+    dash["regulatory_info"] = get_all_npa_info()
+    dash["anomaly_stats"] = {
+        "total_anomalies": anomaly_count,
+        "pct": round(anomaly_count / len(ranking) * 100, 1),
+    }
+    dash["fairness_audit"] = {
+        "cv": round(cv, 1), "is_fair": cv < 10,
+        "min_pct": round(min(pct_values), 1), "max_pct": round(max(pct_values), 1),
+        "details": fairness,
+    }
+    dash["merit_formula"] = {
+        "formula": "MERIT = 0.25×Eff + 0.15×Rel + 0.15×Need + 0.15×Reg + 0.30×ML",
+        "components": [
+            {"name": "Efficiency", "weight": 0.25, "desc": "Адекватность запроса нормативам"},
+            {"name": "Reliability", "weight": 0.15, "desc": "Паттерны надёжного заявителя"},
+            {"name": "Need", "weight": 0.15, "desc": "Потребность региона"},
+            {"name": "Regulatory", "weight": 0.15, "desc": "Соответствие НПА РК"},
+            {"name": "ML Score", "weight": 0.30, "desc": "Прогноз ML-модели"},
+        ],
+    }
     with open(dash_path, "w", encoding="utf-8") as f:
         json.dump(dash, f, indent=2, ensure_ascii=False)
+
     print(f"  ranking.csv             — {len(ranking):,} строк")
     print(f"  model_results.json      — метрики {len(results)} моделей")
     print(f"  feature_importance.csv  — {len(model.importances)} признаков")
@@ -225,6 +282,19 @@ def main():
     print(f"\n{SEPARATOR}")
     print(f"  Pipeline завершён успешно!")
     print(f"{SEPARATOR}\n")
+
+    return {
+        "total": len(ranking),
+        "avg_merit": round(float(ranking["merit_score"].mean()), 2),
+        "recommended": int((ranking["merit_risk_level"] == "recommended").sum()),
+        "anomalies": anomaly_count,
+        "best_auc": max(r["auc"] for r in results.values()),
+        "elapsed": round(time.time() - t0, 1),
+    }
+
+
+def main():
+    run_pipeline(str(DATA_PATH), str(OUTPUT_DIR))
 
 
 if __name__ == "__main__":

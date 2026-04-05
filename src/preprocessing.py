@@ -8,6 +8,8 @@ import numpy as np
 from pathlib import Path
 from sklearn.preprocessing import LabelEncoder
 
+from src.regulatory import add_regulatory_features
+
 
 # ---------- Загрузка и очистка ----------
 
@@ -176,6 +178,9 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     # --- Конкурентные ---
     df["month_application_count"] = df.groupby("month")["id"].transform("count")
 
+    # --- НПА-features (из regulatory.py) ---
+    df = add_regulatory_features(df)
+
     # Replace inf/NaN
     df = df.replace([np.inf, -np.inf], np.nan)
     numeric_cols = df.select_dtypes(include=[np.number]).columns
@@ -198,7 +203,9 @@ FEATURE_COLS = [
     # Regional / competition (3)
     "region_application_count", "district_application_count",
     "month_application_count",
-    # Encoded identifiers (4) — hash-bucketed to prevent target leakage
+    # Regulatory / NPA (3) — из НПА РК
+    "is_priority_direction", "normative_in_npa_range", "pasture_capacity",
+    # Encoded identifiers (4)
     "region_enc", "direction_enc", "subsidy_category_enc", "district_enc",
 ]
 
