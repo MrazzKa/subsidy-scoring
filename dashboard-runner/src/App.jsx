@@ -4,7 +4,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
 
-const API = import.meta.env.VITE_API_URL || '';
+const API = import.meta.env.VITE_API_URL || 'https://subsidy-scoring.onrender.com';
 
 const COLORS = {
   bg: '#0a0e1a',
@@ -523,7 +523,7 @@ function Model({ data }) {
 // Tab 3: Рейтинг
 // ════════════════════════════════════════════════
 function Ranking({ data }) {
-  const { t } = React.useContext(LangContext);
+  const { t, lang } = React.useContext(LangContext);
   const [rows, setRows] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
@@ -1149,9 +1149,18 @@ function Upload({ onDone, file, setFile, preview, setPreview, status, setStatus 
 
   const doPreview = (f) => {
     setFile(f);
+    setStatus(null); // Clear errors
     const fd = new FormData(); fd.append('file', f);
     fetch(API + '/api/upload/preview', { method: 'POST', body: fd })
-      .then(r => r.json()).then(setPreview).catch(() => setPreview(null));
+      .then(r => {
+        if (!r.ok) throw new Error('Network response was not ok');
+        return r.json();
+      })
+      .then(setPreview)
+      .catch((e) => {
+        setPreview(null);
+        setStatus({ running: false, error: 'Ошибка предпросмотра: ' + e.message, stage: 0, total_stages: 6 });
+      });
   };
 
   const handleDrop = (e) => {
