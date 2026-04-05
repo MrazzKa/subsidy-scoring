@@ -142,6 +142,7 @@ function App() {
 function Overview({ data }) {
   const ov = data.overview || {};
   const mf = data.merit_formula || {};
+  const directionStatsSorted = [...(data.direction_stats || [])].sort((a, b) => b.count - a.count);
   return (
     <>
       <div style={styles.grid(5)}>
@@ -193,7 +194,7 @@ function Overview({ data }) {
       <div style={styles.card}>
         <div style={styles.cardTitle}>Статистика по направлениям</div>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={(data.direction_stats || []).sort((a, b) => b.count - a.count)} layout="vertical">
+          <BarChart data={directionStatsSorted} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke={COLORS.border} />
             <XAxis type="number" tick={{ fill: COLORS.textDim, fontSize: 10 }} />
             <YAxis dataKey="direction" type="category" width={200} tick={{ fill: COLORS.textMuted, fontSize: 10 }} />
@@ -214,7 +215,7 @@ function Overview({ data }) {
 // Tab 1: Регионы
 // ════════════════════════════════════════════════
 function Regions({ data }) {
-  const rs = (data.region_stats || []).sort((a, b) => b.avg_score - a.avg_score);
+  const rs = [...(data.region_stats || [])].sort((a, b) => b.avg_score - a.avg_score);
   return (
     <>
       <div style={styles.card}>
