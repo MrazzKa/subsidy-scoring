@@ -3,7 +3,6 @@ __pycache__/
 .env
 .claude/
 .pytest_cache/
-outputs/ranking.csv
 outputs/export_ranking.*
 data/*.xlsx
 data/*.xls

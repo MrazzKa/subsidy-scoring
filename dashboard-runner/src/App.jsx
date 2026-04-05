@@ -847,11 +847,79 @@ function AiChat() {
 // ════════════════════════════════════════════════
 // Tab 8: Загрузить данные
 // ════════════════════════════════════════════════
+
+const PIPELINE_STAGES = [
+  { icon: '📥', label: 'Загрузка файла...' },
+  { icon: '🔍', label: 'Анализ структуры данных...' },
+  { icon: '⚙️', label: 'Извлечение признаков (26 features)...' },
+  { icon: '🧠', label: 'Обучение ML-моделей...' },
+  { icon: '📊', label: 'Расчёт Merit Score...' },
+  { icon: '💾', label: 'Сохранение результатов...' },
+];
+
+function CircularProgress({ stage, totalStages, running }) {
+  const radius = 70;
+  const stroke = 6;
+  const normalizedRadius = radius - stroke;
+  const circumference = normalizedRadius * 2 * Math.PI;
+  const progress = running ? (stage / totalStages) : (stage > 0 ? 1 : 0);
+  const offset = circumference - progress * circumference;
+
+  return (
+    <div style={{ position: 'relative', width: radius * 2, height: radius * 2, margin: '0 auto' }}>
+      <svg width={radius * 2} height={radius * 2} style={{ transform: 'rotate(-90deg)' }}>
+        <defs>
+          <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={COLORS.primary} />
+            <stop offset="50%" stopColor={COLORS.accent1} />
+            <stop offset="100%" stopColor={COLORS.info} />
+          </linearGradient>
+        </defs>
+        {/* Background circle */}
+        <circle
+          cx={radius} cy={radius} r={normalizedRadius}
+          fill="none" stroke={COLORS.border} strokeWidth={stroke}
+        />
+        {/* Progress circle */}
+        <circle
+          cx={radius} cy={radius} r={normalizedRadius}
+          fill="none" stroke="url(#progressGrad)" strokeWidth={stroke}
+          strokeDasharray={circumference} strokeDashoffset={offset}
+          strokeLinecap="round"
+          style={{ transition: 'stroke-dashoffset 0.8s ease-in-out' }}
+        />
+      </svg>
+      {/* Center content */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      }}>
+        {running ? (
+          <>
+            <div style={{ fontSize: 28, marginBottom: 4, animation: 'pulse 1.5s ease-in-out infinite' }}>
+              {PIPELINE_STAGES[Math.max(0, stage - 1)]?.icon || '⏳'}
+            </div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary }}>
+              {Math.round(progress * 100)}%
+            </div>
+          </>
+        ) : stage > 0 ? (
+          <div style={{ fontSize: 36, color: COLORS.success }}>✓</div>
+        ) : (
+          <div style={{ fontSize: 36, color: COLORS.danger }}>✕</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Upload({ onDone }) {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [status, setStatus] = useState(null);
   const [polling, setPolling] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const fileInputRef = useRef(null);
 
   const doPreview = (f) => {
     setFile(f);
@@ -860,11 +928,22 @@ function Upload({ onDone }) {
       .then(r => r.json()).then(setPreview).catch(() => setPreview(null));
   };
 
+  const handleDrop = (e) => {
+    e.preventDefault(); e.stopPropagation(); setDragging(false);
+    const f = e.dataTransfer?.files?.[0];
+    if (f && /\.(xlsx|xls|csv)$/i.test(f.name)) doPreview(f);
+  };
+
+  const handleDragOver = (e) => { e.preventDefault(); e.stopPropagation(); setDragging(true); };
+  const handleDragLeave = (e) => { e.preventDefault(); e.stopPropagation(); setDragging(false); };
+
   const doUpload = () => {
     const fd = new FormData(); fd.append('file', file);
+    setStatus({ running: true, progress: 'Загрузка файла...', stage: 1, total_stages: 6 });
+    setPolling(true);
     fetch(API + '/api/upload', { method: 'POST', body: fd })
-      .then(r => r.json()).then(() => { setPolling(true); pollStatus(); })
-      .catch(e => setStatus({ error: e.message }));
+      .then(r => r.json()).then(() => { pollStatus(); })
+      .catch(e => { setStatus({ running: false, error: e.message, stage: 0, total_stages: 6 }); setPolling(false); });
   };
 
   const pollStatus = () => {
@@ -873,16 +952,50 @@ function Upload({ onDone }) {
         setStatus(s);
         if (!s.running) { clearInterval(iv); setPolling(false); if (!s.error) onDone(); }
       });
-    }, 3000);
+    }, 2000);
   };
 
   return (
     <>
       <div style={styles.card}>
         <div style={styles.cardTitle}>Загрузить новый файл данных</div>
-        <div style={{ padding: 32, border: `2px dashed ${COLORS.border}`, borderRadius: 8, textAlign: 'center' }}>
-          <input type="file" accept=".xlsx,.xls,.csv" onChange={e => e.target.files[0] && doPreview(e.target.files[0])} style={{ fontSize: 12, fontFamily: FONT }} />
-          <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 8 }}>Поддерживаемые форматы: .xlsx, .xls, .csv</div>
+        <div
+          onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave}
+          onClick={() => fileInputRef.current?.click()}
+          style={{
+            padding: 48, border: `2px dashed ${dragging ? COLORS.primary : COLORS.border}`,
+            borderRadius: 12, textAlign: 'center', cursor: 'pointer',
+            background: dragging ? `${COLORS.primary}0a` : 'transparent',
+            transition: 'all 0.3s ease',
+          }}
+        >
+          <div style={{
+            fontSize: 48, marginBottom: 12, opacity: 0.6,
+            transform: dragging ? 'scale(1.1)' : 'scale(1)',
+            transition: 'transform 0.3s ease',
+          }}>
+            {file ? '📄' : '☁️'}
+          </div>
+          {file ? (
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.text, marginBottom: 4 }}>{file.name}</div>
+              <div style={{ fontSize: 11, color: COLORS.textMuted }}>{(file.size / 1024 / 1024).toFixed(2)} MB</div>
+            </div>
+          ) : (
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.text, marginBottom: 4 }}>
+                Перетащите файл сюда или нажмите для выбора
+              </div>
+              <div style={{ fontSize: 11, color: COLORS.textMuted }}>
+                Поддерживаемые форматы: .xlsx, .xls, .csv
+              </div>
+            </div>
+          )}
+          <input
+            ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv"
+            onChange={e => e.target.files[0] && doPreview(e.target.files[0])}
+            style={{ display: 'none' }}
+          />
         </div>
       </div>
 
@@ -894,7 +1007,7 @@ function Upload({ onDone }) {
             <div style={styles.metric}><div style={styles.metricVal}>{preview.columns?.length}</div><div style={styles.metricLabel}>Колонок</div></div>
             <div style={styles.metric}>
               <div style={{ ...styles.metricVal, color: preview.mapping?.ready ? COLORS.success : COLORS.danger }}>
-                {preview.mapping?.ready ? 'Готов' : 'Не готов'}
+                {preview.mapping?.ready ? '✓ Готов' : '✕ Не готов'}
               </div>
               <div style={styles.metricLabel}>Маппинг ({(preview.mapping?.confidence * 100).toFixed(0)}%)</div>
             </div>
@@ -905,14 +1018,14 @@ function Upload({ onDone }) {
               <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>Маппинг колонок:</div>
               <div style={styles.grid(4)}>
                 {Object.entries(preview.mapping.mapping || {}).map(([k, v]) => (
-                  <div key={k} style={{ fontSize: 11, padding: '4px 8px', background: `${COLORS.success}11`, borderRadius: 4 }}>
-                    <span style={{ color: COLORS.success }}>{k}</span> &larr; {v}
+                  <div key={k} style={{ fontSize: 11, padding: '6px 10px', background: `${COLORS.success}11`, borderRadius: 6, border: `1px solid ${COLORS.success}22` }}>
+                    <span style={{ color: COLORS.success, fontWeight: 600 }}>{k}</span> ← {v}
                   </div>
                 ))}
               </div>
               {preview.mapping.unmatched_required?.length > 0 && (
                 <div style={{ marginTop: 8, color: COLORS.danger, fontSize: 11 }}>
-                  Не найдены: {preview.mapping.unmatched_required.join(', ')}
+                  ⚠ Не найдены: {preview.mapping.unmatched_required.join(', ')}
                 </div>
               )}
             </div>
@@ -935,9 +1048,17 @@ function Upload({ onDone }) {
           )}
 
           {preview.mapping?.ready && (
-            <div style={{ marginTop: 16 }}>
-              <button style={styles.btn(COLORS.success)} onClick={doUpload} disabled={polling}>
-                {polling ? 'Обработка...' : 'Запустить обработку'}
+            <div style={{ marginTop: 16, textAlign: 'center' }}>
+              <button
+                style={{
+                  ...styles.btn(COLORS.success),
+                  padding: '12px 32px', fontSize: 13,
+                  opacity: polling ? 0.6 : 1,
+                  transition: 'all 0.2s ease',
+                }}
+                onClick={doUpload} disabled={polling}
+              >
+                {polling ? '⏳ Обработка...' : '🚀 Запустить обработку'}
               </button>
             </div>
           )}
@@ -946,28 +1067,89 @@ function Upload({ onDone }) {
 
       {status && (
         <div style={styles.card}>
-          <div style={styles.cardTitle}>Статус pipeline</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            {status.running && <div style={{ width: 12, height: 12, borderRadius: '50%', background: COLORS.warning, animation: 'pulse 1s infinite' }} />}
-            <span style={{ fontSize: 13, color: status.error ? COLORS.danger : status.running ? COLORS.warning : COLORS.success }}>
-              {status.error || status.progress}
-            </span>
-          </div>
-          {status.running && (
-            <div style={{ marginTop: 12, height: 4, background: COLORS.border, borderRadius: 2, overflow: 'hidden' }}>
-              <div style={{ height: '100%', background: COLORS.warning, width: '60%', animation: 'progress 2s ease-in-out infinite' }} />
+          <div style={styles.cardTitle}>Статус обработки</div>
+
+          {status.running ? (
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <CircularProgress
+                stage={status.stage || 1}
+                totalStages={status.total_stages || 6}
+                running={true}
+              />
+              <div style={{
+                fontSize: 14, fontWeight: 600, marginTop: 20,
+                color: COLORS.primary,
+                animation: 'fadeInUp 0.5s ease',
+              }}>
+                {status.progress}
+              </div>
+              <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 8 }}>
+                Этап {status.stage || 1} из {status.total_stages || 6}
+              </div>
+
+              {/* Stage indicators */}
+              <div style={{
+                display: 'flex', justifyContent: 'center', gap: 8, marginTop: 20,
+                flexWrap: 'wrap', maxWidth: 500, margin: '20px auto 0',
+              }}>
+                {PIPELINE_STAGES.map((s, i) => {
+                  const stageNum = i + 1;
+                  const isActive = stageNum === (status.stage || 1);
+                  const isDone = stageNum < (status.stage || 1);
+                  return (
+                    <div key={i} style={{
+                      padding: '6px 12px', borderRadius: 20, fontSize: 11,
+                      background: isActive ? `${COLORS.primary}22` : isDone ? `${COLORS.success}15` : `${COLORS.border}44`,
+                      color: isActive ? COLORS.primary : isDone ? COLORS.success : COLORS.textDim,
+                      border: `1px solid ${isActive ? COLORS.primary + '44' : isDone ? COLORS.success + '33' : 'transparent'}`,
+                      fontWeight: isActive ? 600 : 400,
+                      transition: 'all 0.4s ease',
+                    }}>
+                      {isDone ? '✓' : s.icon} {s.label.replace('...', '')}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : status.error ? (
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <CircularProgress stage={0} totalStages={6} running={false} />
+              <div style={{ fontSize: 14, fontWeight: 600, marginTop: 16, color: COLORS.danger }}>
+                Ошибка обработки
+              </div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 8, maxWidth: 500, margin: '8px auto 0' }}>
+                {status.error}
+              </div>
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <CircularProgress stage={6} totalStages={6} running={false} />
+              <div style={{
+                fontSize: 16, fontWeight: 700, marginTop: 16,
+                color: COLORS.success,
+              }}>
+                ✓ Данные успешно обработаны!
+              </div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 8 }}>
+                Все вкладки обновлены с новыми данными
+              </div>
             </div>
           )}
-          {status.summary && (
-            <div style={{ ...styles.grid(3), marginTop: 12 }}>
-              <div style={styles.metric}><div style={styles.metricVal}>{fmt(status.summary.total)}</div><div style={styles.metricLabel}>Обработано</div></div>
-              <div style={styles.metric}><div style={styles.metricVal}>{fmtScore(status.summary.avg_merit)}</div><div style={styles.metricLabel}>Ср. Merit</div></div>
-              <div style={styles.metric}><div style={styles.metricVal}>{status.summary.best_auc?.toFixed(4)}</div><div style={styles.metricLabel}>Лучший AUC</div></div>
+
+          {status.summary && !status.running && (
+            <div style={{ ...styles.grid(3), marginTop: 20 }}>
+              <div style={styles.metric}><div style={styles.metricVal}>{fmt(status.summary.total)}</div><div style={styles.metricLabel}>Обработано заявок</div></div>
+              <div style={styles.metric}><div style={{ ...styles.metricVal, color: COLORS.success }}>{fmtScore(status.summary.avg_merit)}</div><div style={styles.metricLabel}>Ср. Merit Score</div></div>
+              <div style={styles.metric}><div style={{ ...styles.metricVal, color: COLORS.accent1 }}>{status.summary.best_auc?.toFixed(4)}</div><div style={styles.metricLabel}>Лучший AUC</div></div>
             </div>
           )}
-          <style>{`@keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.3 } } @keyframes progress { 0% { width:10% } 50% { width:80% } 100% { width:10% } }`}</style>
         </div>
       )}
+
+      <style>{`
+        @keyframes pulse { 0%,100% { opacity:1; transform: scale(1); } 50% { opacity:0.5; transform: scale(0.95); } }
+        @keyframes fadeInUp { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+      `}</style>
     </>
   );
 }

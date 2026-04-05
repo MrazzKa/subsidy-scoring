@@ -237,14 +237,35 @@ async def upload_data(background_tasks: BackgroundTasks, file: UploadFile = File
 
 def _run_pipeline_bg(data_path):
     global _pipeline_status
-    _pipeline_status = {"running": True, "progress": "Обработка...", "error": None, "last_run": None}
+    _pipeline_status = {"running": True, "progress": "Загрузка файла...", "stage": 1, "total_stages": 6, "error": None, "last_run": None}
     try:
+        _pipeline_status["progress"] = "Анализ структуры данных..."
+        _pipeline_status["stage"] = 2
         from src.pipeline import run_pipeline
+        import src.pipeline as _pl
+        # Monkey-patch header to track stages
+        _orig_header = _pl.header
+        _stage_map = {
+            "3.": ("Создание целевой переменной...", 2),
+            "4.": ("Извлечение признаков (26 features)...", 3),
+            "6.": ("Обучение ML-моделей...", 4),
+            "8.": ("Расчёт Merit Score...", 5),
+            "11.": ("Сохранение результатов...", 6),
+        }
+        def _tracked_header(text):
+            for prefix, (msg, stage) in _stage_map.items():
+                if prefix in text:
+                    _pipeline_status["progress"] = msg
+                    _pipeline_status["stage"] = stage
+                    break
+            _orig_header(text)
+        _pl.header = _tracked_header
         summary = run_pipeline(data_path, str(OUTPUT_DIR))
+        _pl.header = _orig_header
         _load_outputs()
-        _pipeline_status = {"running": False, "progress": "Завершён", "error": None, "last_run": datetime.datetime.now().isoformat(), "summary": summary}
+        _pipeline_status = {"running": False, "progress": "Завершён", "stage": 6, "total_stages": 6, "error": None, "last_run": datetime.datetime.now().isoformat(), "summary": summary}
     except Exception as e:
-        _pipeline_status = {"running": False, "progress": "Ошибка", "error": str(e), "last_run": None}
+        _pipeline_status = {"running": False, "progress": "Ошибка", "stage": 0, "total_stages": 6, "error": str(e), "last_run": None}
 
 @app.get("/api/pipeline/status")
 def pipeline_status():
